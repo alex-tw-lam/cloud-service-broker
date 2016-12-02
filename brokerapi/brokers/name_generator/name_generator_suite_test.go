@@ -1,4 +1,4 @@
-package cloudsql_test
+package name_generator_test
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestCloudsql(t *testing.T) {
+func TestNameGenerator(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "CloudSQL Suite")
+	RunSpecs(t, "NameGenerator Suite")
 }
