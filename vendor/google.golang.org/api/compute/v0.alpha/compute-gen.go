@@ -85,7 +85,6 @@ func New(client *http.Client) (*Service, error) {
 	s.GlobalForwardingRules = NewGlobalForwardingRulesService(s)
 	s.GlobalOperations = NewGlobalOperationsService(s)
 	s.HealthChecks = NewHealthChecksService(s)
-	s.HostTypes = NewHostTypesService(s)
 	s.HttpHealthChecks = NewHttpHealthChecksService(s)
 	s.HttpsHealthChecks = NewHttpsHealthChecksService(s)
 	s.Images = NewImagesService(s)
@@ -98,6 +97,7 @@ func New(client *http.Client) (*Service, error) {
 	s.Interconnects = NewInterconnectsService(s)
 	s.LicenseCodes = NewLicenseCodesService(s)
 	s.Licenses = NewLicensesService(s)
+	s.MachineImages = NewMachineImagesService(s)
 	s.MachineTypes = NewMachineTypesService(s)
 	s.NetworkEndpointGroups = NewNetworkEndpointGroupsService(s)
 	s.Networks = NewNetworksService(s)
@@ -175,8 +175,6 @@ type Service struct {
 
 	HealthChecks *HealthChecksService
 
-	HostTypes *HostTypesService
-
 	HttpHealthChecks *HttpHealthChecksService
 
 	HttpsHealthChecks *HttpsHealthChecksService
@@ -200,6 +198,8 @@ type Service struct {
 	LicenseCodes *LicenseCodesService
 
 	Licenses *LicensesService
+
+	MachineImages *MachineImagesService
 
 	MachineTypes *MachineTypesService
 
@@ -417,15 +417,6 @@ type HealthChecksService struct {
 	s *Service
 }
 
-func NewHostTypesService(s *Service) *HostTypesService {
-	rs := &HostTypesService{s: s}
-	return rs
-}
-
-type HostTypesService struct {
-	s *Service
-}
-
 func NewHttpHealthChecksService(s *Service) *HttpHealthChecksService {
 	rs := &HttpHealthChecksService{s: s}
 	return rs
@@ -531,6 +522,15 @@ func NewLicensesService(s *Service) *LicensesService {
 }
 
 type LicensesService struct {
+	s *Service
+}
+
+func NewMachineImagesService(s *Service) *MachineImagesService {
+	rs := &MachineImagesService{s: s}
+	return rs
+}
+
+type MachineImagesService struct {
 	s *Service
 }
 
@@ -2999,6 +2999,10 @@ func (s *AttachedDisk) MarshalJSON() ([]byte, error) {
 // This property is mutually exclusive with the source property; you can
 // only define one or the other, but not both.
 type AttachedDiskInitializeParams struct {
+	// Description: An optional description. Provide this property when
+	// creating the disk.
+	Description string `json:"description,omitempty"`
+
 	// DiskName: Specifies the disk name. If not specified, the default is
 	// to use the name of the instance. If the disk with the instance name
 	// exists already in the given zone/region, a new name will be
@@ -3007,13 +3011,6 @@ type AttachedDiskInitializeParams struct {
 
 	// DiskSizeGb: Specifies the size of the disk in base-2 GB.
 	DiskSizeGb int64 `json:"diskSizeGb,omitempty,string"`
-
-	// DiskStorageType: [Deprecated] Storage type of the disk.
-	//
-	// Possible values:
-	//   "HDD"
-	//   "SSD"
-	DiskStorageType string `json:"diskStorageType,omitempty"`
 
 	// DiskType: Specifies the disk type to use to create the instance. If
 	// not specified, the default is pd-standard, specified using the full
@@ -3098,7 +3095,7 @@ type AttachedDiskInitializeParams struct {
 	// the source snapshot.
 	SourceSnapshotEncryptionKey *CustomerEncryptionKey `json:"sourceSnapshotEncryptionKey,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "DiskName") to
+	// ForceSendFields is a list of field names (e.g. "Description") to
 	// unconditionally include in API requests. By default, fields with
 	// empty values are omitted from API requests. However, any non-pointer,
 	// non-interface field appearing in ForceSendFields will be sent to the
@@ -3106,10 +3103,10 @@ type AttachedDiskInitializeParams struct {
 	// used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "DiskName") to include in
-	// API requests with the JSON null value. By default, fields with empty
-	// values are omitted from API requests. However, any field with an
-	// empty value appearing in NullFields will be sent to the server as
+	// NullFields is a list of field names (e.g. "Description") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
 	// null. It is an error if a field in this list has a non-empty value.
 	// This may be used to include null fields in Patch requests.
 	NullFields []string `json:"-"`
@@ -5800,6 +5797,9 @@ func (s *CacheKeyPolicy) MarshalJSON() ([]byte, error) {
 // must purchase a new commitment to continue receiving discounts. (==
 // resource_for beta.commitments ==) (== resource_for v1.commitments ==)
 type Commitment struct {
+	// Allocations: List of allocations for this commitment.
+	Allocations []*Allocation `json:"allocations,omitempty"`
+
 	// CreationTimestamp: [Output Only] Creation timestamp in RFC3339 text
 	// format.
 	CreationTimestamp string `json:"creationTimestamp,omitempty"`
@@ -5883,21 +5883,20 @@ type Commitment struct {
 	// server.
 	googleapi.ServerResponse `json:"-"`
 
-	// ForceSendFields is a list of field names (e.g. "CreationTimestamp")
-	// to unconditionally include in API requests. By default, fields with
+	// ForceSendFields is a list of field names (e.g. "Allocations") to
+	// unconditionally include in API requests. By default, fields with
 	// empty values are omitted from API requests. However, any non-pointer,
 	// non-interface field appearing in ForceSendFields will be sent to the
 	// server regardless of whether the field is empty or not. This may be
 	// used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "CreationTimestamp") to
-	// include in API requests with the JSON null value. By default, fields
-	// with empty values are omitted from API requests. However, any field
-	// with an empty value appearing in NullFields will be sent to the
-	// server as null. It is an error if a field in this list has a
-	// non-empty value. This may be used to include null fields in Patch
-	// requests.
+	// NullFields is a list of field names (e.g. "Allocations") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
 	NullFields []string `json:"-"`
 }
 
@@ -8618,6 +8617,13 @@ type ForwardingRule struct {
 	// forwarded to the backends configured with this forwarding rule.
 	AllPorts bool `json:"allPorts,omitempty"`
 
+	// AllowGlobalAccess: This field is used along with the backend_service
+	// field for internal load balancing or with the target field for
+	// internal TargetInstance. If the field is set to TRUE, clients can
+	// access ILB from all regions. Otherwise only allows access from
+	// clients in the same region as the internal load balancer.
+	AllowGlobalAccess bool `json:"allowGlobalAccess,omitempty"`
+
 	// BackendService: This field is only used for INTERNAL load
 	// balancing.
 	//
@@ -10419,524 +10425,6 @@ func (s *HostRule) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
-// HostType: A Host Type resource.
-type HostType struct {
-	// CpuPlatform: [Output Only] The CPU platform used by this host type.
-	CpuPlatform string `json:"cpuPlatform,omitempty"`
-
-	// CreationTimestamp: [Output Only] Creation timestamp in RFC3339 text
-	// format.
-	CreationTimestamp string `json:"creationTimestamp,omitempty"`
-
-	// Deprecated: [Output Only] The deprecation status associated with this
-	// host type.
-	Deprecated *DeprecationStatus `json:"deprecated,omitempty"`
-
-	// Description: [Output Only] An optional textual description of the
-	// resource.
-	Description string `json:"description,omitempty"`
-
-	// GuestCpus: [Output Only] The number of virtual CPUs that are
-	// available to the host type.
-	GuestCpus int64 `json:"guestCpus,omitempty"`
-
-	// Id: [Output Only] The unique identifier for the resource. This
-	// identifier is defined by the server.
-	Id uint64 `json:"id,omitempty,string"`
-
-	// Kind: [Output Only] The type of the resource. Always compute#hostType
-	// for host types.
-	Kind string `json:"kind,omitempty"`
-
-	// LocalSsdGb: [Output Only] Local SSD available to the host type,
-	// defined in GB.
-	LocalSsdGb int64 `json:"localSsdGb,omitempty"`
-
-	// MemoryMb: [Output Only] The amount of physical memory available to
-	// the host type, defined in MB.
-	MemoryMb int64 `json:"memoryMb,omitempty"`
-
-	// Name: [Output Only] Name of the resource.
-	Name string `json:"name,omitempty"`
-
-	// SelfLink: [Output Only] Server-defined URL for the resource.
-	SelfLink string `json:"selfLink,omitempty"`
-
-	// Zone: [Output Only] The name of the zone where the host type resides,
-	// such as us-central1-a.
-	Zone string `json:"zone,omitempty"`
-
-	// ServerResponse contains the HTTP response code and headers from the
-	// server.
-	googleapi.ServerResponse `json:"-"`
-
-	// ForceSendFields is a list of field names (e.g. "CpuPlatform") to
-	// unconditionally include in API requests. By default, fields with
-	// empty values are omitted from API requests. However, any non-pointer,
-	// non-interface field appearing in ForceSendFields will be sent to the
-	// server regardless of whether the field is empty or not. This may be
-	// used to include empty fields in Patch requests.
-	ForceSendFields []string `json:"-"`
-
-	// NullFields is a list of field names (e.g. "CpuPlatform") to include
-	// in API requests with the JSON null value. By default, fields with
-	// empty values are omitted from API requests. However, any field with
-	// an empty value appearing in NullFields will be sent to the server as
-	// null. It is an error if a field in this list has a non-empty value.
-	// This may be used to include null fields in Patch requests.
-	NullFields []string `json:"-"`
-}
-
-func (s *HostType) MarshalJSON() ([]byte, error) {
-	type NoMethod HostType
-	raw := NoMethod(*s)
-	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
-}
-
-type HostTypeAggregatedList struct {
-	// Id: [Output Only] Unique identifier for the resource; defined by the
-	// server.
-	Id string `json:"id,omitempty"`
-
-	// Items: A list of HostTypesScopedList resources.
-	Items map[string]HostTypesScopedList `json:"items,omitempty"`
-
-	// Kind: [Output Only] Type of resource.Always
-	// compute#hostTypeAggregatedList for aggregated lists of host types.
-	Kind string `json:"kind,omitempty"`
-
-	// NextPageToken: [Output Only] This token allows you to get the next
-	// page of results for list requests. If the number of results is larger
-	// than maxResults, use the nextPageToken as a value for the query
-	// parameter pageToken in the next list request. Subsequent list
-	// requests will have their own nextPageToken to continue paging through
-	// the results.
-	NextPageToken string `json:"nextPageToken,omitempty"`
-
-	// SelfLink: [Output Only] Server-defined URL for this resource.
-	SelfLink string `json:"selfLink,omitempty"`
-
-	// Warning: [Output Only] Informational warning message.
-	Warning *HostTypeAggregatedListWarning `json:"warning,omitempty"`
-
-	// ServerResponse contains the HTTP response code and headers from the
-	// server.
-	googleapi.ServerResponse `json:"-"`
-
-	// ForceSendFields is a list of field names (e.g. "Id") to
-	// unconditionally include in API requests. By default, fields with
-	// empty values are omitted from API requests. However, any non-pointer,
-	// non-interface field appearing in ForceSendFields will be sent to the
-	// server regardless of whether the field is empty or not. This may be
-	// used to include empty fields in Patch requests.
-	ForceSendFields []string `json:"-"`
-
-	// NullFields is a list of field names (e.g. "Id") to include in API
-	// requests with the JSON null value. By default, fields with empty
-	// values are omitted from API requests. However, any field with an
-	// empty value appearing in NullFields will be sent to the server as
-	// null. It is an error if a field in this list has a non-empty value.
-	// This may be used to include null fields in Patch requests.
-	NullFields []string `json:"-"`
-}
-
-func (s *HostTypeAggregatedList) MarshalJSON() ([]byte, error) {
-	type NoMethod HostTypeAggregatedList
-	raw := NoMethod(*s)
-	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
-}
-
-// HostTypeAggregatedListWarning: [Output Only] Informational warning
-// message.
-type HostTypeAggregatedListWarning struct {
-	// Code: [Output Only] A warning code, if applicable. For example,
-	// Compute Engine returns NO_RESULTS_ON_PAGE if there are no results in
-	// the response.
-	//
-	// Possible values:
-	//   "CLEANUP_FAILED"
-	//   "DEPRECATED_RESOURCE_USED"
-	//   "DEPRECATED_TYPE_USED"
-	//   "DISK_SIZE_LARGER_THAN_IMAGE_SIZE"
-	//   "EXPERIMENTAL_TYPE_USED"
-	//   "EXTERNAL_API_WARNING"
-	//   "FIELD_VALUE_OVERRIDEN"
-	//   "INJECTED_KERNELS_DEPRECATED"
-	//   "MISSING_TYPE_DEPENDENCY"
-	//   "NEXT_HOP_ADDRESS_NOT_ASSIGNED"
-	//   "NEXT_HOP_CANNOT_IP_FORWARD"
-	//   "NEXT_HOP_INSTANCE_NOT_FOUND"
-	//   "NEXT_HOP_INSTANCE_NOT_ON_NETWORK"
-	//   "NEXT_HOP_NOT_RUNNING"
-	//   "NOT_CRITICAL_ERROR"
-	//   "NO_RESULTS_ON_PAGE"
-	//   "REQUIRED_TOS_AGREEMENT"
-	//   "RESOURCE_IN_USE_BY_OTHER_RESOURCE_WARNING"
-	//   "RESOURCE_NOT_DELETED"
-	//   "SCHEMA_VALIDATION_IGNORED"
-	//   "SINGLE_INSTANCE_PROPERTY_TEMPLATE"
-	//   "UNDECLARED_PROPERTIES"
-	//   "UNREACHABLE"
-	Code string `json:"code,omitempty"`
-
-	// Data: [Output Only] Metadata about this warning in key: value format.
-	// For example:
-	// "data": [ { "key": "scope", "value": "zones/us-east1-d" }
-	Data []*HostTypeAggregatedListWarningData `json:"data,omitempty"`
-
-	// Message: [Output Only] A human-readable description of the warning
-	// code.
-	Message string `json:"message,omitempty"`
-
-	// ForceSendFields is a list of field names (e.g. "Code") to
-	// unconditionally include in API requests. By default, fields with
-	// empty values are omitted from API requests. However, any non-pointer,
-	// non-interface field appearing in ForceSendFields will be sent to the
-	// server regardless of whether the field is empty or not. This may be
-	// used to include empty fields in Patch requests.
-	ForceSendFields []string `json:"-"`
-
-	// NullFields is a list of field names (e.g. "Code") to include in API
-	// requests with the JSON null value. By default, fields with empty
-	// values are omitted from API requests. However, any field with an
-	// empty value appearing in NullFields will be sent to the server as
-	// null. It is an error if a field in this list has a non-empty value.
-	// This may be used to include null fields in Patch requests.
-	NullFields []string `json:"-"`
-}
-
-func (s *HostTypeAggregatedListWarning) MarshalJSON() ([]byte, error) {
-	type NoMethod HostTypeAggregatedListWarning
-	raw := NoMethod(*s)
-	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
-}
-
-type HostTypeAggregatedListWarningData struct {
-	// Key: [Output Only] A key that provides more detail on the warning
-	// being returned. For example, for warnings where there are no results
-	// in a list request for a particular zone, this key might be scope and
-	// the key value might be the zone name. Other examples might be a key
-	// indicating a deprecated resource and a suggested replacement, or a
-	// warning about invalid network settings (for example, if an instance
-	// attempts to perform IP forwarding but is not enabled for IP
-	// forwarding).
-	Key string `json:"key,omitempty"`
-
-	// Value: [Output Only] A warning data value corresponding to the key.
-	Value string `json:"value,omitempty"`
-
-	// ForceSendFields is a list of field names (e.g. "Key") to
-	// unconditionally include in API requests. By default, fields with
-	// empty values are omitted from API requests. However, any non-pointer,
-	// non-interface field appearing in ForceSendFields will be sent to the
-	// server regardless of whether the field is empty or not. This may be
-	// used to include empty fields in Patch requests.
-	ForceSendFields []string `json:"-"`
-
-	// NullFields is a list of field names (e.g. "Key") to include in API
-	// requests with the JSON null value. By default, fields with empty
-	// values are omitted from API requests. However, any field with an
-	// empty value appearing in NullFields will be sent to the server as
-	// null. It is an error if a field in this list has a non-empty value.
-	// This may be used to include null fields in Patch requests.
-	NullFields []string `json:"-"`
-}
-
-func (s *HostTypeAggregatedListWarningData) MarshalJSON() ([]byte, error) {
-	type NoMethod HostTypeAggregatedListWarningData
-	raw := NoMethod(*s)
-	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
-}
-
-// HostTypeList: Contains a list of host types.
-type HostTypeList struct {
-	// Id: [Output Only] Unique identifier for the resource; defined by the
-	// server.
-	Id string `json:"id,omitempty"`
-
-	// Items: A list of HostType resources.
-	Items []*HostType `json:"items,omitempty"`
-
-	// Kind: [Output Only] Type of resource.Always compute#hostTypeList for
-	// lists of host types.
-	Kind string `json:"kind,omitempty"`
-
-	// NextPageToken: [Output Only] This token allows you to get the next
-	// page of results for list requests. If the number of results is larger
-	// than maxResults, use the nextPageToken as a value for the query
-	// parameter pageToken in the next list request. Subsequent list
-	// requests will have their own nextPageToken to continue paging through
-	// the results.
-	NextPageToken string `json:"nextPageToken,omitempty"`
-
-	// SelfLink: [Output Only] Server-defined URL for this resource.
-	SelfLink string `json:"selfLink,omitempty"`
-
-	// Warning: [Output Only] Informational warning message.
-	Warning *HostTypeListWarning `json:"warning,omitempty"`
-
-	// ServerResponse contains the HTTP response code and headers from the
-	// server.
-	googleapi.ServerResponse `json:"-"`
-
-	// ForceSendFields is a list of field names (e.g. "Id") to
-	// unconditionally include in API requests. By default, fields with
-	// empty values are omitted from API requests. However, any non-pointer,
-	// non-interface field appearing in ForceSendFields will be sent to the
-	// server regardless of whether the field is empty or not. This may be
-	// used to include empty fields in Patch requests.
-	ForceSendFields []string `json:"-"`
-
-	// NullFields is a list of field names (e.g. "Id") to include in API
-	// requests with the JSON null value. By default, fields with empty
-	// values are omitted from API requests. However, any field with an
-	// empty value appearing in NullFields will be sent to the server as
-	// null. It is an error if a field in this list has a non-empty value.
-	// This may be used to include null fields in Patch requests.
-	NullFields []string `json:"-"`
-}
-
-func (s *HostTypeList) MarshalJSON() ([]byte, error) {
-	type NoMethod HostTypeList
-	raw := NoMethod(*s)
-	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
-}
-
-// HostTypeListWarning: [Output Only] Informational warning message.
-type HostTypeListWarning struct {
-	// Code: [Output Only] A warning code, if applicable. For example,
-	// Compute Engine returns NO_RESULTS_ON_PAGE if there are no results in
-	// the response.
-	//
-	// Possible values:
-	//   "CLEANUP_FAILED"
-	//   "DEPRECATED_RESOURCE_USED"
-	//   "DEPRECATED_TYPE_USED"
-	//   "DISK_SIZE_LARGER_THAN_IMAGE_SIZE"
-	//   "EXPERIMENTAL_TYPE_USED"
-	//   "EXTERNAL_API_WARNING"
-	//   "FIELD_VALUE_OVERRIDEN"
-	//   "INJECTED_KERNELS_DEPRECATED"
-	//   "MISSING_TYPE_DEPENDENCY"
-	//   "NEXT_HOP_ADDRESS_NOT_ASSIGNED"
-	//   "NEXT_HOP_CANNOT_IP_FORWARD"
-	//   "NEXT_HOP_INSTANCE_NOT_FOUND"
-	//   "NEXT_HOP_INSTANCE_NOT_ON_NETWORK"
-	//   "NEXT_HOP_NOT_RUNNING"
-	//   "NOT_CRITICAL_ERROR"
-	//   "NO_RESULTS_ON_PAGE"
-	//   "REQUIRED_TOS_AGREEMENT"
-	//   "RESOURCE_IN_USE_BY_OTHER_RESOURCE_WARNING"
-	//   "RESOURCE_NOT_DELETED"
-	//   "SCHEMA_VALIDATION_IGNORED"
-	//   "SINGLE_INSTANCE_PROPERTY_TEMPLATE"
-	//   "UNDECLARED_PROPERTIES"
-	//   "UNREACHABLE"
-	Code string `json:"code,omitempty"`
-
-	// Data: [Output Only] Metadata about this warning in key: value format.
-	// For example:
-	// "data": [ { "key": "scope", "value": "zones/us-east1-d" }
-	Data []*HostTypeListWarningData `json:"data,omitempty"`
-
-	// Message: [Output Only] A human-readable description of the warning
-	// code.
-	Message string `json:"message,omitempty"`
-
-	// ForceSendFields is a list of field names (e.g. "Code") to
-	// unconditionally include in API requests. By default, fields with
-	// empty values are omitted from API requests. However, any non-pointer,
-	// non-interface field appearing in ForceSendFields will be sent to the
-	// server regardless of whether the field is empty or not. This may be
-	// used to include empty fields in Patch requests.
-	ForceSendFields []string `json:"-"`
-
-	// NullFields is a list of field names (e.g. "Code") to include in API
-	// requests with the JSON null value. By default, fields with empty
-	// values are omitted from API requests. However, any field with an
-	// empty value appearing in NullFields will be sent to the server as
-	// null. It is an error if a field in this list has a non-empty value.
-	// This may be used to include null fields in Patch requests.
-	NullFields []string `json:"-"`
-}
-
-func (s *HostTypeListWarning) MarshalJSON() ([]byte, error) {
-	type NoMethod HostTypeListWarning
-	raw := NoMethod(*s)
-	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
-}
-
-type HostTypeListWarningData struct {
-	// Key: [Output Only] A key that provides more detail on the warning
-	// being returned. For example, for warnings where there are no results
-	// in a list request for a particular zone, this key might be scope and
-	// the key value might be the zone name. Other examples might be a key
-	// indicating a deprecated resource and a suggested replacement, or a
-	// warning about invalid network settings (for example, if an instance
-	// attempts to perform IP forwarding but is not enabled for IP
-	// forwarding).
-	Key string `json:"key,omitempty"`
-
-	// Value: [Output Only] A warning data value corresponding to the key.
-	Value string `json:"value,omitempty"`
-
-	// ForceSendFields is a list of field names (e.g. "Key") to
-	// unconditionally include in API requests. By default, fields with
-	// empty values are omitted from API requests. However, any non-pointer,
-	// non-interface field appearing in ForceSendFields will be sent to the
-	// server regardless of whether the field is empty or not. This may be
-	// used to include empty fields in Patch requests.
-	ForceSendFields []string `json:"-"`
-
-	// NullFields is a list of field names (e.g. "Key") to include in API
-	// requests with the JSON null value. By default, fields with empty
-	// values are omitted from API requests. However, any field with an
-	// empty value appearing in NullFields will be sent to the server as
-	// null. It is an error if a field in this list has a non-empty value.
-	// This may be used to include null fields in Patch requests.
-	NullFields []string `json:"-"`
-}
-
-func (s *HostTypeListWarningData) MarshalJSON() ([]byte, error) {
-	type NoMethod HostTypeListWarningData
-	raw := NoMethod(*s)
-	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
-}
-
-type HostTypesScopedList struct {
-	// HostTypes: [Output Only] A list of host types contained in this
-	// scope.
-	HostTypes []*HostType `json:"hostTypes,omitempty"`
-
-	// Warning: [Output Only] An informational warning that appears when the
-	// host types list is empty.
-	Warning *HostTypesScopedListWarning `json:"warning,omitempty"`
-
-	// ForceSendFields is a list of field names (e.g. "HostTypes") to
-	// unconditionally include in API requests. By default, fields with
-	// empty values are omitted from API requests. However, any non-pointer,
-	// non-interface field appearing in ForceSendFields will be sent to the
-	// server regardless of whether the field is empty or not. This may be
-	// used to include empty fields in Patch requests.
-	ForceSendFields []string `json:"-"`
-
-	// NullFields is a list of field names (e.g. "HostTypes") to include in
-	// API requests with the JSON null value. By default, fields with empty
-	// values are omitted from API requests. However, any field with an
-	// empty value appearing in NullFields will be sent to the server as
-	// null. It is an error if a field in this list has a non-empty value.
-	// This may be used to include null fields in Patch requests.
-	NullFields []string `json:"-"`
-}
-
-func (s *HostTypesScopedList) MarshalJSON() ([]byte, error) {
-	type NoMethod HostTypesScopedList
-	raw := NoMethod(*s)
-	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
-}
-
-// HostTypesScopedListWarning: [Output Only] An informational warning
-// that appears when the host types list is empty.
-type HostTypesScopedListWarning struct {
-	// Code: [Output Only] A warning code, if applicable. For example,
-	// Compute Engine returns NO_RESULTS_ON_PAGE if there are no results in
-	// the response.
-	//
-	// Possible values:
-	//   "CLEANUP_FAILED"
-	//   "DEPRECATED_RESOURCE_USED"
-	//   "DEPRECATED_TYPE_USED"
-	//   "DISK_SIZE_LARGER_THAN_IMAGE_SIZE"
-	//   "EXPERIMENTAL_TYPE_USED"
-	//   "EXTERNAL_API_WARNING"
-	//   "FIELD_VALUE_OVERRIDEN"
-	//   "INJECTED_KERNELS_DEPRECATED"
-	//   "MISSING_TYPE_DEPENDENCY"
-	//   "NEXT_HOP_ADDRESS_NOT_ASSIGNED"
-	//   "NEXT_HOP_CANNOT_IP_FORWARD"
-	//   "NEXT_HOP_INSTANCE_NOT_FOUND"
-	//   "NEXT_HOP_INSTANCE_NOT_ON_NETWORK"
-	//   "NEXT_HOP_NOT_RUNNING"
-	//   "NOT_CRITICAL_ERROR"
-	//   "NO_RESULTS_ON_PAGE"
-	//   "REQUIRED_TOS_AGREEMENT"
-	//   "RESOURCE_IN_USE_BY_OTHER_RESOURCE_WARNING"
-	//   "RESOURCE_NOT_DELETED"
-	//   "SCHEMA_VALIDATION_IGNORED"
-	//   "SINGLE_INSTANCE_PROPERTY_TEMPLATE"
-	//   "UNDECLARED_PROPERTIES"
-	//   "UNREACHABLE"
-	Code string `json:"code,omitempty"`
-
-	// Data: [Output Only] Metadata about this warning in key: value format.
-	// For example:
-	// "data": [ { "key": "scope", "value": "zones/us-east1-d" }
-	Data []*HostTypesScopedListWarningData `json:"data,omitempty"`
-
-	// Message: [Output Only] A human-readable description of the warning
-	// code.
-	Message string `json:"message,omitempty"`
-
-	// ForceSendFields is a list of field names (e.g. "Code") to
-	// unconditionally include in API requests. By default, fields with
-	// empty values are omitted from API requests. However, any non-pointer,
-	// non-interface field appearing in ForceSendFields will be sent to the
-	// server regardless of whether the field is empty or not. This may be
-	// used to include empty fields in Patch requests.
-	ForceSendFields []string `json:"-"`
-
-	// NullFields is a list of field names (e.g. "Code") to include in API
-	// requests with the JSON null value. By default, fields with empty
-	// values are omitted from API requests. However, any field with an
-	// empty value appearing in NullFields will be sent to the server as
-	// null. It is an error if a field in this list has a non-empty value.
-	// This may be used to include null fields in Patch requests.
-	NullFields []string `json:"-"`
-}
-
-func (s *HostTypesScopedListWarning) MarshalJSON() ([]byte, error) {
-	type NoMethod HostTypesScopedListWarning
-	raw := NoMethod(*s)
-	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
-}
-
-type HostTypesScopedListWarningData struct {
-	// Key: [Output Only] A key that provides more detail on the warning
-	// being returned. For example, for warnings where there are no results
-	// in a list request for a particular zone, this key might be scope and
-	// the key value might be the zone name. Other examples might be a key
-	// indicating a deprecated resource and a suggested replacement, or a
-	// warning about invalid network settings (for example, if an instance
-	// attempts to perform IP forwarding but is not enabled for IP
-	// forwarding).
-	Key string `json:"key,omitempty"`
-
-	// Value: [Output Only] A warning data value corresponding to the key.
-	Value string `json:"value,omitempty"`
-
-	// ForceSendFields is a list of field names (e.g. "Key") to
-	// unconditionally include in API requests. By default, fields with
-	// empty values are omitted from API requests. However, any non-pointer,
-	// non-interface field appearing in ForceSendFields will be sent to the
-	// server regardless of whether the field is empty or not. This may be
-	// used to include empty fields in Patch requests.
-	ForceSendFields []string `json:"-"`
-
-	// NullFields is a list of field names (e.g. "Key") to include in API
-	// requests with the JSON null value. By default, fields with empty
-	// values are omitted from API requests. However, any field with an
-	// empty value appearing in NullFields will be sent to the server as
-	// null. It is an error if a field in this list has a non-empty value.
-	// This may be used to include null fields in Patch requests.
-	NullFields []string `json:"-"`
-}
-
-func (s *HostTypesScopedListWarningData) MarshalJSON() ([]byte, error) {
-	type NoMethod HostTypesScopedListWarningData
-	raw := NoMethod(*s)
-	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
-}
-
 // HttpHealthCheck: An HttpHealthCheck resource. This resource defines a
 // template for how individual instances should be checked for health,
 // via HTTP.
@@ -11856,6 +11344,8 @@ type Instance struct {
 	// GuestAccelerators: A list of the type and count of accelerator cards
 	// attached to the instance.
 	GuestAccelerators []*AcceleratorConfig `json:"guestAccelerators,omitempty"`
+
+	Hostname string `json:"hostname,omitempty"`
 
 	// Id: [Output Only] The unique identifier for the resource. This
 	// identifier is defined by the server.
@@ -17016,10 +16506,10 @@ type InterconnectLocation struct {
 	// each line in the address is separated by a newline character.
 	Address string `json:"address,omitempty"`
 
-	// AvailabilityZone: [Output Only] Availability zone for this location.
-	// Within a metropolitan area (metro), maintenance will not be
-	// simultaneously scheduled in more than one availability zone. Example:
-	// "zone1" or "zone2".
+	// AvailabilityZone: [Output Only] Availability zone for this
+	// InterconnectLocation. Within a metropolitan area (metro), maintenance
+	// will not be simultaneously scheduled in more than one availability
+	// zone. Example: "zone1" or "zone2".
 	AvailabilityZone string `json:"availabilityZone,omitempty"`
 
 	// City: [Output Only] Metropolitan area designator that indicates which
@@ -18311,6 +17801,246 @@ type LogConfigDataAccessOptions struct {
 
 func (s *LogConfigDataAccessOptions) MarshalJSON() ([]byte, error) {
 	type NoMethod LogConfigDataAccessOptions
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// MachineImage: Machine image resource.
+type MachineImage struct {
+	// CreationTimestamp: [Output Only] The creation timestamp for this
+	// machine image in RFC3339 text format.
+	CreationTimestamp string `json:"creationTimestamp,omitempty"`
+
+	// Description: An optional description of this resource. Provide this
+	// property when you create the resource.
+	Description string `json:"description,omitempty"`
+
+	// Id: [Output Only] A unique identifier for this machine image. The
+	// server defines this identifier.
+	Id uint64 `json:"id,omitempty,string"`
+
+	// Kind: [Output Only] The resource type, which is always
+	// compute#machineImage for machine image.
+	Kind string `json:"kind,omitempty"`
+
+	// Name: Name of the resource; provided by the client when the resource
+	// is created. The name must be 1-63 characters long, and comply with
+	// RFC1035. Specifically, the name must be 1-63 characters long and
+	// match the regular expression `[a-z]([-a-z0-9]*[a-z0-9])?` which means
+	// the first character must be a lowercase letter, and all following
+	// characters must be a dash, lowercase letter, or digit, except the
+	// last character, which cannot be a dash.
+	Name string `json:"name,omitempty"`
+
+	// SelfLink: [Output Only] The URL for this machine image. The server
+	// defines this URL.
+	SelfLink string `json:"selfLink,omitempty"`
+
+	// SourceInstance: The source instance used to create the template. You
+	// can provide this as a partial or full URL to the resource. For
+	// example, the following are valid values:
+	// -
+	// https://www.googleapis.com/compute/v1/projects/project/zones/zone/instances/instance
+	// - projects/project/zones/zone/instances/instance
+	SourceInstance string `json:"sourceInstance,omitempty"`
+
+	SourceInstanceProperties *SourceInstanceProperties `json:"sourceInstanceProperties,omitempty"`
+
+	// Status: [Output Only] The status of disk creation.
+	//
+	// Possible values:
+	//   "CREATING"
+	//   "DELETING"
+	//   "INVALID"
+	//   "READY"
+	//   "UPLOADING"
+	Status string `json:"status,omitempty"`
+
+	// StorageLocations: GCS bucket storage location of the snapshot
+	// (regional or multi-regional).
+	StorageLocations []string `json:"storageLocations,omitempty"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g. "CreationTimestamp")
+	// to unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "CreationTimestamp") to
+	// include in API requests with the JSON null value. By default, fields
+	// with empty values are omitted from API requests. However, any field
+	// with an empty value appearing in NullFields will be sent to the
+	// server as null. It is an error if a field in this list has a
+	// non-empty value. This may be used to include null fields in Patch
+	// requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *MachineImage) MarshalJSON() ([]byte, error) {
+	type NoMethod MachineImage
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// MachineImageList: A list of machine images.
+type MachineImageList struct {
+	Etag string `json:"etag,omitempty"`
+
+	// Id: [Output Only] Unique identifier for the resource; defined by the
+	// server.
+	Id string `json:"id,omitempty"`
+
+	// Items: A list of MachineImage resources.
+	Items []*MachineImage `json:"items,omitempty"`
+
+	// Kind: [Output Only] The resource type, which is always
+	// compute#machineImagesListResponse for machine image lists.
+	Kind string `json:"kind,omitempty"`
+
+	// NextPageToken: [Output Only] This token allows you to get the next
+	// page of results for list requests. If the number of results is larger
+	// than maxResults, use the nextPageToken as a value for the query
+	// parameter pageToken in the next list request. Subsequent list
+	// requests will have their own nextPageToken to continue paging through
+	// the results.
+	NextPageToken string `json:"nextPageToken,omitempty"`
+
+	// SelfLink: [Output Only] Server-defined URL for this resource.
+	SelfLink string `json:"selfLink,omitempty"`
+
+	// Warning: [Output Only] Informational warning message.
+	Warning *MachineImageListWarning `json:"warning,omitempty"`
+
+	// ServerResponse contains the HTTP response code and headers from the
+	// server.
+	googleapi.ServerResponse `json:"-"`
+
+	// ForceSendFields is a list of field names (e.g. "Etag") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Etag") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *MachineImageList) MarshalJSON() ([]byte, error) {
+	type NoMethod MachineImageList
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// MachineImageListWarning: [Output Only] Informational warning message.
+type MachineImageListWarning struct {
+	// Code: [Output Only] A warning code, if applicable. For example,
+	// Compute Engine returns NO_RESULTS_ON_PAGE if there are no results in
+	// the response.
+	//
+	// Possible values:
+	//   "CLEANUP_FAILED"
+	//   "DEPRECATED_RESOURCE_USED"
+	//   "DEPRECATED_TYPE_USED"
+	//   "DISK_SIZE_LARGER_THAN_IMAGE_SIZE"
+	//   "EXPERIMENTAL_TYPE_USED"
+	//   "EXTERNAL_API_WARNING"
+	//   "FIELD_VALUE_OVERRIDEN"
+	//   "INJECTED_KERNELS_DEPRECATED"
+	//   "MISSING_TYPE_DEPENDENCY"
+	//   "NEXT_HOP_ADDRESS_NOT_ASSIGNED"
+	//   "NEXT_HOP_CANNOT_IP_FORWARD"
+	//   "NEXT_HOP_INSTANCE_NOT_FOUND"
+	//   "NEXT_HOP_INSTANCE_NOT_ON_NETWORK"
+	//   "NEXT_HOP_NOT_RUNNING"
+	//   "NOT_CRITICAL_ERROR"
+	//   "NO_RESULTS_ON_PAGE"
+	//   "REQUIRED_TOS_AGREEMENT"
+	//   "RESOURCE_IN_USE_BY_OTHER_RESOURCE_WARNING"
+	//   "RESOURCE_NOT_DELETED"
+	//   "SCHEMA_VALIDATION_IGNORED"
+	//   "SINGLE_INSTANCE_PROPERTY_TEMPLATE"
+	//   "UNDECLARED_PROPERTIES"
+	//   "UNREACHABLE"
+	Code string `json:"code,omitempty"`
+
+	// Data: [Output Only] Metadata about this warning in key: value format.
+	// For example:
+	// "data": [ { "key": "scope", "value": "zones/us-east1-d" }
+	Data []*MachineImageListWarningData `json:"data,omitempty"`
+
+	// Message: [Output Only] A human-readable description of the warning
+	// code.
+	Message string `json:"message,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Code") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Code") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *MachineImageListWarning) MarshalJSON() ([]byte, error) {
+	type NoMethod MachineImageListWarning
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+type MachineImageListWarningData struct {
+	// Key: [Output Only] A key that provides more detail on the warning
+	// being returned. For example, for warnings where there are no results
+	// in a list request for a particular zone, this key might be scope and
+	// the key value might be the zone name. Other examples might be a key
+	// indicating a deprecated resource and a suggested replacement, or a
+	// warning about invalid network settings (for example, if an instance
+	// attempts to perform IP forwarding but is not enabled for IP
+	// forwarding).
+	Key string `json:"key,omitempty"`
+
+	// Value: [Output Only] A warning data value corresponding to the key.
+	Value string `json:"value,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Key") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Key") to include in API
+	// requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *MachineImageListWarningData) MarshalJSON() ([]byte, error) {
+	type NoMethod MachineImageListWarningData
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -26639,8 +26369,6 @@ func (s *ResourcePolicyVmMaintenancePolicy) MarshalJSON() ([]byte, error) {
 type ResourcePolicyVmMaintenancePolicyMaintenanceWindow struct {
 	DailyMaintenanceWindow *ResourcePolicyDailyCycle `json:"dailyMaintenanceWindow,omitempty"`
 
-	WeeklyMaintenanceWindow *ResourcePolicyWeeklyCycle `json:"weeklyMaintenanceWindow,omitempty"`
-
 	// ForceSendFields is a list of field names (e.g.
 	// "DailyMaintenanceWindow") to unconditionally include in API requests.
 	// By default, fields with empty values are omitted from API requests.
@@ -28386,6 +28114,173 @@ func (s *SSLHealthCheck) MarshalJSON() ([]byte, error) {
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
 
+// SavedAttachedDisk: An instance-attached disk resource.
+type SavedAttachedDisk struct {
+	// AutoDelete: Specifies whether the disk will be auto-deleted when the
+	// instance is deleted (but not when the disk is detached from the
+	// instance).
+	AutoDelete bool `json:"autoDelete,omitempty"`
+
+	// Boot: Indicates that this is a boot disk. The virtual machine will
+	// use the first partition of the disk for its root filesystem.
+	Boot bool `json:"boot,omitempty"`
+
+	// DeviceName: Specifies a unique device name of your choice that is
+	// reflected into the /dev/disk/by-id/google-* tree of a Linux operating
+	// system running within the instance. This name can be used to
+	// reference the device for mounting, resizing, and so on, from within
+	// the instance.
+	//
+	// If not specified, the server chooses a default device name to apply
+	// to this disk, in the form persistent-disks-x, where x is a number
+	// assigned by Google Compute Engine. This field is only applicable for
+	// persistent disks.
+	DeviceName string `json:"deviceName,omitempty"`
+
+	// DiskEncryptionKey: Encrypts or decrypts a disk using a
+	// customer-supplied encryption key.
+	//
+	// If you are creating a new disk, this field encrypts the new disk
+	// using an encryption key that you provide. If you are attaching an
+	// existing disk that is already encrypted, this field decrypts the disk
+	// using the customer-supplied encryption key.
+	//
+	// If you encrypt a disk using a customer-supplied key, you must provide
+	// the same key again when you attempt to use this resource at a later
+	// time. For example, you must provide the key when you create a
+	// snapshot or an image from the disk or when you attach the disk to a
+	// virtual machine instance.
+	//
+	// If you do not provide an encryption key, then the disk will be
+	// encrypted using an automatically generated key and you do not need to
+	// provide a key to use the disk later.
+	//
+	// Instance templates do not store customer-supplied encryption keys, so
+	// you cannot use your own keys to encrypt disks in a managed instance
+	// group.
+	DiskEncryptionKey *CustomerEncryptionKey `json:"diskEncryptionKey,omitempty"`
+
+	// DiskSizeGb: The size of the disk in base-2 GB. This supersedes
+	// disk_size_gb in InitializeParams.
+	DiskSizeGb int64 `json:"diskSizeGb,omitempty,string"`
+
+	// GuestOsFeatures: A list of features to enable on the guest operating
+	// system. Applicable only for bootable images. Read  Enabling guest
+	// operating system features to see a list of available options.
+	GuestOsFeatures []*GuestOsFeature `json:"guestOsFeatures,omitempty"`
+
+	// Index: [Output Only] A zero-based index to this disk, where 0 is
+	// reserved for the boot disk. If you have many disks attached to an
+	// instance, each disk would have a unique index number.
+	Index int64 `json:"index,omitempty"`
+
+	// InitializeParams: [Input Only] Specifies the parameters for a new
+	// disk that will be created alongside the new instance. Use
+	// initialization parameters to create boot disks or local SSDs attached
+	// to the new instance.
+	//
+	// This property is mutually exclusive with the source property; you can
+	// only define one or the other, but not both.
+	InitializeParams *AttachedDiskInitializeParams `json:"initializeParams,omitempty"`
+
+	// Interface: Specifies the disk interface to use for attaching this
+	// disk, which is either SCSI or NVME. The default is SCSI. Persistent
+	// disks must always use SCSI and the request will fail if you attempt
+	// to attach a persistent disk in any other format than SCSI. Local SSDs
+	// can use either NVME or SCSI. For performance characteristics of SCSI
+	// over NVMe, see Local SSD performance.
+	//
+	// Possible values:
+	//   "NVDIMM"
+	//   "NVME"
+	//   "SCSI"
+	Interface string `json:"interface,omitempty"`
+
+	// Kind: [Output Only] Type of the resource. Always compute#attachedDisk
+	// for attached disks.
+	Kind string `json:"kind,omitempty"`
+
+	// Licenses: [Output Only] Any valid publicly visible licenses.
+	Licenses []string `json:"licenses,omitempty"`
+
+	// Mode: The mode in which to attach this disk, either READ_WRITE or
+	// READ_ONLY. If not specified, the default is to attach the disk in
+	// READ_WRITE mode.
+	//
+	// Possible values:
+	//   "READ_ONLY"
+	//   "READ_WRITE"
+	Mode string `json:"mode,omitempty"`
+
+	// SavedState: For LocalSSD disks on VM Instances in STOPPED or
+	// SUSPENDED state, this field is set to PRESERVED if the LocalSSD data
+	// has been saved to a persistent location by customer request. (see the
+	// discard_local_ssd option on Stop/Suspend). Read-only in the api.
+	//
+	// Possible values:
+	//   "DISK_SAVED_STATE_UNSPECIFIED"
+	//   "PRESERVED"
+	SavedState string `json:"savedState,omitempty"`
+
+	// Source: Specifies a valid partial or full URL to an existing
+	// Persistent Disk resource. When creating a new instance, one of
+	// initializeParams.sourceImage or disks.source is required except for
+	// local SSD.
+	//
+	// If desired, you can also attach existing non-root persistent disks
+	// using this property. This field is only applicable for persistent
+	// disks.
+	//
+	// Note that for InstanceTemplate, specify the disk name, not the URL
+	// for the disk.
+	Source string `json:"source,omitempty"`
+
+	// StorageBytes: [Output Only] A size of the storage used by the disk's
+	// snapshot.
+	StorageBytes int64 `json:"storageBytes,omitempty,string"`
+
+	// StorageBytesStatus: [Output Only] An indicator whether storageBytes
+	// is in a stable state or it is being adjusted as a result of shared
+	// storage reallocation. This status can either be UPDATING, meaning the
+	// size of the snapshot is being updated, or UP_TO_DATE, meaning the
+	// size of the snapshot is up-to-date.
+	//
+	// Possible values:
+	//   "UPDATING"
+	//   "UP_TO_DATE"
+	StorageBytesStatus string `json:"storageBytesStatus,omitempty"`
+
+	// Type: Specifies the type of the disk, either SCRATCH or PERSISTENT.
+	// If not specified, the default is PERSISTENT.
+	//
+	// Possible values:
+	//   "PERSISTENT"
+	//   "SCRATCH"
+	Type string `json:"type,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "AutoDelete") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "AutoDelete") to include in
+	// API requests with the JSON null value. By default, fields with empty
+	// values are omitted from API requests. However, any field with an
+	// empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *SavedAttachedDisk) MarshalJSON() ([]byte, error) {
+	type NoMethod SavedAttachedDisk
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
 // Scheduling: Sets the scheduling options for an Instance.
 type Scheduling struct {
 	// AutomaticRestart: Specifies whether the instance should be
@@ -28541,7 +28436,8 @@ func (s *SecurityPoliciesWafConfig) MarshalJSON() ([]byte, error) {
 
 // SecurityPolicy: A security policy is comprised of one or more rules.
 // It can also be associated with one or more 'targets'. (==
-// resource_for beta.securityPolicies ==)
+// resource_for v1.securityPolicies ==) (== resource_for
+// beta.securityPolicies ==)
 type SecurityPolicy struct {
 	// CreationTimestamp: [Output Only] Creation timestamp in RFC3339 text
 	// format.
@@ -28890,7 +28786,6 @@ type SecurityPolicyRuleMatcher struct {
 	//
 	// Possible values:
 	//   "SRC_IPS_V1"
-	//   "VERSIONED_EXPR_UNSPECIFIED"
 	VersionedExpr string `json:"versionedExpr,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "Config") to
@@ -29474,6 +29369,97 @@ type SourceInstanceParams struct {
 
 func (s *SourceInstanceParams) MarshalJSON() ([]byte, error) {
 	type NoMethod SourceInstanceParams
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+type SourceInstanceProperties struct {
+	// CanIpForward: Enables instances created based on this template to
+	// send packets with source IP addresses other than their own and
+	// receive packets with destination IP addresses other than their own.
+	// If these instances will be used as an IP gateway or it will be set as
+	// the next-hop in a Route resource, specify true. If unsure, leave this
+	// set to false. See the Enable IP forwarding documentation for more
+	// information.
+	CanIpForward bool `json:"canIpForward,omitempty"`
+
+	// DeletionProtection: Whether the resource should be protected against
+	// deletion.
+	DeletionProtection bool `json:"deletionProtection,omitempty"`
+
+	// Description: An optional text description for the instances that are
+	// created from this instance template.
+	Description string `json:"description,omitempty"`
+
+	// Disks: An array of disks that are associated with the instances that
+	// are created from this template.
+	Disks []*SavedAttachedDisk `json:"disks,omitempty"`
+
+	// GuestAccelerators: A list of guest accelerator cards' type and count
+	// to use for instances created from the instance template.
+	GuestAccelerators []*AcceleratorConfig `json:"guestAccelerators,omitempty"`
+
+	// Labels: Labels to apply to instances that are created from this
+	// template.
+	Labels map[string]string `json:"labels,omitempty"`
+
+	// MachineType: The machine type to use for instances that are created
+	// from this template.
+	MachineType string `json:"machineType,omitempty"`
+
+	// Metadata: The metadata key/value pairs to assign to instances that
+	// are created from this template. These pairs can consist of custom
+	// metadata or predefined keys. See Project and instance metadata for
+	// more information.
+	Metadata *Metadata `json:"metadata,omitempty"`
+
+	// MinCpuPlatform: Minimum cpu/platform to be used by this instance. The
+	// instance may be scheduled on the specified or newer cpu/platform.
+	// Applicable values are the friendly names of CPU platforms, such as
+	// minCpuPlatform: "Intel Haswell" or minCpuPlatform: "Intel Sandy
+	// Bridge". For more information, read Specifying a Minimum CPU
+	// Platform.
+	MinCpuPlatform string `json:"minCpuPlatform,omitempty"`
+
+	// NetworkInterfaces: An array of network access configurations for this
+	// interface.
+	NetworkInterfaces []*NetworkInterface `json:"networkInterfaces,omitempty"`
+
+	// Scheduling: Specifies the scheduling options for the instances that
+	// are created from this template.
+	Scheduling *Scheduling `json:"scheduling,omitempty"`
+
+	// ServiceAccounts: A list of service accounts with specified scopes.
+	// Access tokens for these service accounts are available to the
+	// instances that are created from this template. Use metadata queries
+	// to obtain the access tokens for these instances.
+	ServiceAccounts []*ServiceAccount `json:"serviceAccounts,omitempty"`
+
+	// Tags: A list of tags to apply to the instances that are created from
+	// this template. The tags identify valid sources or targets for network
+	// firewalls. The setTags method can modify this list of tags. Each tag
+	// within the list must comply with RFC1035.
+	Tags *Tags `json:"tags,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "CanIpForward") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "CanIpForward") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *SourceInstanceProperties) MarshalJSON() ([]byte, error) {
+	type NoMethod SourceInstanceProperties
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -35696,7 +35682,7 @@ func (s *UrlMapsAggregatedListWarningData) MarshalJSON() ([]byte, error) {
 
 type UrlMapsScopedList struct {
 	// UrlMaps: A list of UrlMaps contained in this scope.
-	UrlMaps []*UrlMap `json:"UrlMaps,omitempty"`
+	UrlMaps []*UrlMap `json:"urlMaps,omitempty"`
 
 	// Warning: Informational warning which replaces the list of backend
 	// services when the list is empty.
@@ -57934,675 +57920,6 @@ func (c *HealthChecksUpdateCall) Do(opts ...googleapi.CallOption) (*Operation, e
 
 }
 
-// method id "compute.hostTypes.aggregatedList":
-
-type HostTypesAggregatedListCall struct {
-	s            *Service
-	project      string
-	urlParams_   gensupport.URLParams
-	ifNoneMatch_ string
-	ctx_         context.Context
-	header_      http.Header
-}
-
-// AggregatedList: Retrieves an aggregated list of host types.
-func (r *HostTypesService) AggregatedList(project string) *HostTypesAggregatedListCall {
-	c := &HostTypesAggregatedListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
-	c.project = project
-	return c
-}
-
-// Filter sets the optional parameter "filter": A filter expression that
-// filters resources listed in the response. The expression must specify
-// the field name, a comparison operator, and the value that you want to
-// use for filtering. The value must be a string, a number, or a
-// boolean. The comparison operator must be either =, !=, >, or <.
-//
-// For example, if you are filtering Compute Engine instances, you can
-// exclude instances named example-instance by specifying name !=
-// example-instance.
-//
-// You can also filter nested fields. For example, you could specify
-// scheduling.automaticRestart = false to include instances only if they
-// are not scheduled for automatic restarts. You can use filtering on
-// nested fields to filter based on resource labels.
-//
-// To filter on multiple expressions, provide each separate expression
-// within parentheses. For example, (scheduling.automaticRestart = true)
-// (cpuPlatform = "Intel Skylake"). By default, each expression is an
-// AND expression. However, you can include AND and OR expressions
-// explicitly. For example, (cpuPlatform = "Intel Skylake") OR
-// (cpuPlatform = "Intel Broadwell") AND (scheduling.automaticRestart =
-// true).
-func (c *HostTypesAggregatedListCall) Filter(filter string) *HostTypesAggregatedListCall {
-	c.urlParams_.Set("filter", filter)
-	return c
-}
-
-// MaxResults sets the optional parameter "maxResults": The maximum
-// number of results per page that should be returned. If the number of
-// available results is larger than maxResults, Compute Engine returns a
-// nextPageToken that can be used to get the next page of results in
-// subsequent list requests. Acceptable values are 0 to 500, inclusive.
-// (Default: 500)
-func (c *HostTypesAggregatedListCall) MaxResults(maxResults int64) *HostTypesAggregatedListCall {
-	c.urlParams_.Set("maxResults", fmt.Sprint(maxResults))
-	return c
-}
-
-// OrderBy sets the optional parameter "orderBy": Sorts list results by
-// a certain order. By default, results are returned in alphanumerical
-// order based on the resource name.
-//
-// You can also sort results in descending order based on the creation
-// timestamp using orderBy="creationTimestamp desc". This sorts results
-// based on the creationTimestamp field in reverse chronological order
-// (newest result first). Use this to sort resources like operations so
-// that the newest operation is returned first.
-//
-// Currently, only sorting by name or creationTimestamp desc is
-// supported.
-func (c *HostTypesAggregatedListCall) OrderBy(orderBy string) *HostTypesAggregatedListCall {
-	c.urlParams_.Set("orderBy", orderBy)
-	return c
-}
-
-// PageToken sets the optional parameter "pageToken": Specifies a page
-// token to use. Set pageToken to the nextPageToken returned by a
-// previous list request to get the next page of results.
-func (c *HostTypesAggregatedListCall) PageToken(pageToken string) *HostTypesAggregatedListCall {
-	c.urlParams_.Set("pageToken", pageToken)
-	return c
-}
-
-// Fields allows partial responses to be retrieved. See
-// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
-// for more information.
-func (c *HostTypesAggregatedListCall) Fields(s ...googleapi.Field) *HostTypesAggregatedListCall {
-	c.urlParams_.Set("fields", googleapi.CombineFields(s))
-	return c
-}
-
-// IfNoneMatch sets the optional parameter which makes the operation
-// fail if the object's ETag matches the given value. This is useful for
-// getting updates only after the object has changed since the last
-// request. Use googleapi.IsNotModified to check whether the response
-// error from Do is the result of In-None-Match.
-func (c *HostTypesAggregatedListCall) IfNoneMatch(entityTag string) *HostTypesAggregatedListCall {
-	c.ifNoneMatch_ = entityTag
-	return c
-}
-
-// Context sets the context to be used in this call's Do method. Any
-// pending HTTP request will be aborted if the provided context is
-// canceled.
-func (c *HostTypesAggregatedListCall) Context(ctx context.Context) *HostTypesAggregatedListCall {
-	c.ctx_ = ctx
-	return c
-}
-
-// Header returns an http.Header that can be modified by the caller to
-// add HTTP headers to the request.
-func (c *HostTypesAggregatedListCall) Header() http.Header {
-	if c.header_ == nil {
-		c.header_ = make(http.Header)
-	}
-	return c.header_
-}
-
-func (c *HostTypesAggregatedListCall) doRequest(alt string) (*http.Response, error) {
-	reqHeaders := make(http.Header)
-	for k, v := range c.header_ {
-		reqHeaders[k] = v
-	}
-	reqHeaders.Set("User-Agent", c.s.userAgent())
-	if c.ifNoneMatch_ != "" {
-		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
-	}
-	var body io.Reader = nil
-	c.urlParams_.Set("alt", alt)
-	urls := googleapi.ResolveRelative(c.s.BasePath, "{project}/aggregated/hostTypes")
-	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("GET", urls, body)
-	req.Header = reqHeaders
-	googleapi.Expand(req.URL, map[string]string{
-		"project": c.project,
-	})
-	return gensupport.SendRequest(c.ctx_, c.s.client, req)
-}
-
-// Do executes the "compute.hostTypes.aggregatedList" call.
-// Exactly one of *HostTypeAggregatedList or error will be non-nil. Any
-// non-2xx status code is an error. Response headers are in either
-// *HostTypeAggregatedList.ServerResponse.Header or (if a response was
-// returned at all) in error.(*googleapi.Error).Header. Use
-// googleapi.IsNotModified to check whether the returned error was
-// because http.StatusNotModified was returned.
-func (c *HostTypesAggregatedListCall) Do(opts ...googleapi.CallOption) (*HostTypeAggregatedList, error) {
-	gensupport.SetOptions(c.urlParams_, opts...)
-	res, err := c.doRequest("json")
-	if res != nil && res.StatusCode == http.StatusNotModified {
-		if res.Body != nil {
-			res.Body.Close()
-		}
-		return nil, &googleapi.Error{
-			Code:   res.StatusCode,
-			Header: res.Header,
-		}
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer googleapi.CloseBody(res)
-	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
-	}
-	ret := &HostTypeAggregatedList{
-		ServerResponse: googleapi.ServerResponse{
-			Header:         res.Header,
-			HTTPStatusCode: res.StatusCode,
-		},
-	}
-	target := &ret
-	if err := gensupport.DecodeResponse(target, res); err != nil {
-		return nil, err
-	}
-	return ret, nil
-	// {
-	//   "description": "Retrieves an aggregated list of host types.",
-	//   "httpMethod": "GET",
-	//   "id": "compute.hostTypes.aggregatedList",
-	//   "parameterOrder": [
-	//     "project"
-	//   ],
-	//   "parameters": {
-	//     "filter": {
-	//       "description": "A filter expression that filters resources listed in the response. The expression must specify the field name, a comparison operator, and the value that you want to use for filtering. The value must be a string, a number, or a boolean. The comparison operator must be either =, !=, \u003e, or \u003c.\n\nFor example, if you are filtering Compute Engine instances, you can exclude instances named example-instance by specifying name != example-instance.\n\nYou can also filter nested fields. For example, you could specify scheduling.automaticRestart = false to include instances only if they are not scheduled for automatic restarts. You can use filtering on nested fields to filter based on resource labels.\n\nTo filter on multiple expressions, provide each separate expression within parentheses. For example, (scheduling.automaticRestart = true) (cpuPlatform = \"Intel Skylake\"). By default, each expression is an AND expression. However, you can include AND and OR expressions explicitly. For example, (cpuPlatform = \"Intel Skylake\") OR (cpuPlatform = \"Intel Broadwell\") AND (scheduling.automaticRestart = true).",
-	//       "location": "query",
-	//       "type": "string"
-	//     },
-	//     "maxResults": {
-	//       "default": "500",
-	//       "description": "The maximum number of results per page that should be returned. If the number of available results is larger than maxResults, Compute Engine returns a nextPageToken that can be used to get the next page of results in subsequent list requests. Acceptable values are 0 to 500, inclusive. (Default: 500)",
-	//       "format": "uint32",
-	//       "location": "query",
-	//       "minimum": "0",
-	//       "type": "integer"
-	//     },
-	//     "orderBy": {
-	//       "description": "Sorts list results by a certain order. By default, results are returned in alphanumerical order based on the resource name.\n\nYou can also sort results in descending order based on the creation timestamp using orderBy=\"creationTimestamp desc\". This sorts results based on the creationTimestamp field in reverse chronological order (newest result first). Use this to sort resources like operations so that the newest operation is returned first.\n\nCurrently, only sorting by name or creationTimestamp desc is supported.",
-	//       "location": "query",
-	//       "type": "string"
-	//     },
-	//     "pageToken": {
-	//       "description": "Specifies a page token to use. Set pageToken to the nextPageToken returned by a previous list request to get the next page of results.",
-	//       "location": "query",
-	//       "type": "string"
-	//     },
-	//     "project": {
-	//       "description": "Project ID for this request.",
-	//       "location": "path",
-	//       "pattern": "(?:(?:[-a-z0-9]{1,63}\\.)*(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?):)?(?:[0-9]{1,19}|(?:[a-z0-9](?:[-a-z0-9]{0,61}[a-z0-9])?))",
-	//       "required": true,
-	//       "type": "string"
-	//     }
-	//   },
-	//   "path": "{project}/aggregated/hostTypes",
-	//   "response": {
-	//     "$ref": "HostTypeAggregatedList"
-	//   },
-	//   "scopes": [
-	//     "https://www.googleapis.com/auth/cloud-platform",
-	//     "https://www.googleapis.com/auth/compute",
-	//     "https://www.googleapis.com/auth/compute.readonly"
-	//   ]
-	// }
-
-}
-
-// Pages invokes f for each page of results.
-// A non-nil error returned from f will halt the iteration.
-// The provided context supersedes any context provided to the Context method.
-func (c *HostTypesAggregatedListCall) Pages(ctx context.Context, f func(*HostTypeAggregatedList) error) error {
-	c.ctx_ = ctx
-	defer c.PageToken(c.urlParams_.Get("pageToken")) // reset paging to original point
-	for {
-		x, err := c.Do()
-		if err != nil {
-			return err
-		}
-		if err := f(x); err != nil {
-			return err
-		}
-		if x.NextPageToken == "" {
-			return nil
-		}
-		c.PageToken(x.NextPageToken)
-	}
-}
-
-// method id "compute.hostTypes.get":
-
-type HostTypesGetCall struct {
-	s            *Service
-	project      string
-	zone         string
-	hostType     string
-	urlParams_   gensupport.URLParams
-	ifNoneMatch_ string
-	ctx_         context.Context
-	header_      http.Header
-}
-
-// Get: Returns the specified host type. Gets a list of available host
-// types by making a list() request.
-func (r *HostTypesService) Get(project string, zone string, hostType string) *HostTypesGetCall {
-	c := &HostTypesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
-	c.project = project
-	c.zone = zone
-	c.hostType = hostType
-	return c
-}
-
-// Fields allows partial responses to be retrieved. See
-// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
-// for more information.
-func (c *HostTypesGetCall) Fields(s ...googleapi.Field) *HostTypesGetCall {
-	c.urlParams_.Set("fields", googleapi.CombineFields(s))
-	return c
-}
-
-// IfNoneMatch sets the optional parameter which makes the operation
-// fail if the object's ETag matches the given value. This is useful for
-// getting updates only after the object has changed since the last
-// request. Use googleapi.IsNotModified to check whether the response
-// error from Do is the result of In-None-Match.
-func (c *HostTypesGetCall) IfNoneMatch(entityTag string) *HostTypesGetCall {
-	c.ifNoneMatch_ = entityTag
-	return c
-}
-
-// Context sets the context to be used in this call's Do method. Any
-// pending HTTP request will be aborted if the provided context is
-// canceled.
-func (c *HostTypesGetCall) Context(ctx context.Context) *HostTypesGetCall {
-	c.ctx_ = ctx
-	return c
-}
-
-// Header returns an http.Header that can be modified by the caller to
-// add HTTP headers to the request.
-func (c *HostTypesGetCall) Header() http.Header {
-	if c.header_ == nil {
-		c.header_ = make(http.Header)
-	}
-	return c.header_
-}
-
-func (c *HostTypesGetCall) doRequest(alt string) (*http.Response, error) {
-	reqHeaders := make(http.Header)
-	for k, v := range c.header_ {
-		reqHeaders[k] = v
-	}
-	reqHeaders.Set("User-Agent", c.s.userAgent())
-	if c.ifNoneMatch_ != "" {
-		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
-	}
-	var body io.Reader = nil
-	c.urlParams_.Set("alt", alt)
-	urls := googleapi.ResolveRelative(c.s.BasePath, "{project}/zones/{zone}/hostTypes/{hostType}")
-	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("GET", urls, body)
-	req.Header = reqHeaders
-	googleapi.Expand(req.URL, map[string]string{
-		"project":  c.project,
-		"zone":     c.zone,
-		"hostType": c.hostType,
-	})
-	return gensupport.SendRequest(c.ctx_, c.s.client, req)
-}
-
-// Do executes the "compute.hostTypes.get" call.
-// Exactly one of *HostType or error will be non-nil. Any non-2xx status
-// code is an error. Response headers are in either
-// *HostType.ServerResponse.Header or (if a response was returned at
-// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
-// to check whether the returned error was because
-// http.StatusNotModified was returned.
-func (c *HostTypesGetCall) Do(opts ...googleapi.CallOption) (*HostType, error) {
-	gensupport.SetOptions(c.urlParams_, opts...)
-	res, err := c.doRequest("json")
-	if res != nil && res.StatusCode == http.StatusNotModified {
-		if res.Body != nil {
-			res.Body.Close()
-		}
-		return nil, &googleapi.Error{
-			Code:   res.StatusCode,
-			Header: res.Header,
-		}
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer googleapi.CloseBody(res)
-	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
-	}
-	ret := &HostType{
-		ServerResponse: googleapi.ServerResponse{
-			Header:         res.Header,
-			HTTPStatusCode: res.StatusCode,
-		},
-	}
-	target := &ret
-	if err := gensupport.DecodeResponse(target, res); err != nil {
-		return nil, err
-	}
-	return ret, nil
-	// {
-	//   "description": "Returns the specified host type. Gets a list of available host types by making a list() request.",
-	//   "httpMethod": "GET",
-	//   "id": "compute.hostTypes.get",
-	//   "parameterOrder": [
-	//     "project",
-	//     "zone",
-	//     "hostType"
-	//   ],
-	//   "parameters": {
-	//     "hostType": {
-	//       "description": "Name of the host type to return.",
-	//       "location": "path",
-	//       "pattern": "[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?",
-	//       "required": true,
-	//       "type": "string"
-	//     },
-	//     "project": {
-	//       "description": "Project ID for this request.",
-	//       "location": "path",
-	//       "pattern": "(?:(?:[-a-z0-9]{1,63}\\.)*(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?):)?(?:[0-9]{1,19}|(?:[a-z0-9](?:[-a-z0-9]{0,61}[a-z0-9])?))",
-	//       "required": true,
-	//       "type": "string"
-	//     },
-	//     "zone": {
-	//       "description": "The name of the zone for this request.",
-	//       "location": "path",
-	//       "pattern": "[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?",
-	//       "required": true,
-	//       "type": "string"
-	//     }
-	//   },
-	//   "path": "{project}/zones/{zone}/hostTypes/{hostType}",
-	//   "response": {
-	//     "$ref": "HostType"
-	//   },
-	//   "scopes": [
-	//     "https://www.googleapis.com/auth/cloud-platform",
-	//     "https://www.googleapis.com/auth/compute",
-	//     "https://www.googleapis.com/auth/compute.readonly"
-	//   ]
-	// }
-
-}
-
-// method id "compute.hostTypes.list":
-
-type HostTypesListCall struct {
-	s            *Service
-	project      string
-	zone         string
-	urlParams_   gensupport.URLParams
-	ifNoneMatch_ string
-	ctx_         context.Context
-	header_      http.Header
-}
-
-// List: Retrieves a list of host types available to the specified
-// project.
-func (r *HostTypesService) List(project string, zone string) *HostTypesListCall {
-	c := &HostTypesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
-	c.project = project
-	c.zone = zone
-	return c
-}
-
-// Filter sets the optional parameter "filter": A filter expression that
-// filters resources listed in the response. The expression must specify
-// the field name, a comparison operator, and the value that you want to
-// use for filtering. The value must be a string, a number, or a
-// boolean. The comparison operator must be either =, !=, >, or <.
-//
-// For example, if you are filtering Compute Engine instances, you can
-// exclude instances named example-instance by specifying name !=
-// example-instance.
-//
-// You can also filter nested fields. For example, you could specify
-// scheduling.automaticRestart = false to include instances only if they
-// are not scheduled for automatic restarts. You can use filtering on
-// nested fields to filter based on resource labels.
-//
-// To filter on multiple expressions, provide each separate expression
-// within parentheses. For example, (scheduling.automaticRestart = true)
-// (cpuPlatform = "Intel Skylake"). By default, each expression is an
-// AND expression. However, you can include AND and OR expressions
-// explicitly. For example, (cpuPlatform = "Intel Skylake") OR
-// (cpuPlatform = "Intel Broadwell") AND (scheduling.automaticRestart =
-// true).
-func (c *HostTypesListCall) Filter(filter string) *HostTypesListCall {
-	c.urlParams_.Set("filter", filter)
-	return c
-}
-
-// MaxResults sets the optional parameter "maxResults": The maximum
-// number of results per page that should be returned. If the number of
-// available results is larger than maxResults, Compute Engine returns a
-// nextPageToken that can be used to get the next page of results in
-// subsequent list requests. Acceptable values are 0 to 500, inclusive.
-// (Default: 500)
-func (c *HostTypesListCall) MaxResults(maxResults int64) *HostTypesListCall {
-	c.urlParams_.Set("maxResults", fmt.Sprint(maxResults))
-	return c
-}
-
-// OrderBy sets the optional parameter "orderBy": Sorts list results by
-// a certain order. By default, results are returned in alphanumerical
-// order based on the resource name.
-//
-// You can also sort results in descending order based on the creation
-// timestamp using orderBy="creationTimestamp desc". This sorts results
-// based on the creationTimestamp field in reverse chronological order
-// (newest result first). Use this to sort resources like operations so
-// that the newest operation is returned first.
-//
-// Currently, only sorting by name or creationTimestamp desc is
-// supported.
-func (c *HostTypesListCall) OrderBy(orderBy string) *HostTypesListCall {
-	c.urlParams_.Set("orderBy", orderBy)
-	return c
-}
-
-// PageToken sets the optional parameter "pageToken": Specifies a page
-// token to use. Set pageToken to the nextPageToken returned by a
-// previous list request to get the next page of results.
-func (c *HostTypesListCall) PageToken(pageToken string) *HostTypesListCall {
-	c.urlParams_.Set("pageToken", pageToken)
-	return c
-}
-
-// Fields allows partial responses to be retrieved. See
-// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
-// for more information.
-func (c *HostTypesListCall) Fields(s ...googleapi.Field) *HostTypesListCall {
-	c.urlParams_.Set("fields", googleapi.CombineFields(s))
-	return c
-}
-
-// IfNoneMatch sets the optional parameter which makes the operation
-// fail if the object's ETag matches the given value. This is useful for
-// getting updates only after the object has changed since the last
-// request. Use googleapi.IsNotModified to check whether the response
-// error from Do is the result of In-None-Match.
-func (c *HostTypesListCall) IfNoneMatch(entityTag string) *HostTypesListCall {
-	c.ifNoneMatch_ = entityTag
-	return c
-}
-
-// Context sets the context to be used in this call's Do method. Any
-// pending HTTP request will be aborted if the provided context is
-// canceled.
-func (c *HostTypesListCall) Context(ctx context.Context) *HostTypesListCall {
-	c.ctx_ = ctx
-	return c
-}
-
-// Header returns an http.Header that can be modified by the caller to
-// add HTTP headers to the request.
-func (c *HostTypesListCall) Header() http.Header {
-	if c.header_ == nil {
-		c.header_ = make(http.Header)
-	}
-	return c.header_
-}
-
-func (c *HostTypesListCall) doRequest(alt string) (*http.Response, error) {
-	reqHeaders := make(http.Header)
-	for k, v := range c.header_ {
-		reqHeaders[k] = v
-	}
-	reqHeaders.Set("User-Agent", c.s.userAgent())
-	if c.ifNoneMatch_ != "" {
-		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
-	}
-	var body io.Reader = nil
-	c.urlParams_.Set("alt", alt)
-	urls := googleapi.ResolveRelative(c.s.BasePath, "{project}/zones/{zone}/hostTypes")
-	urls += "?" + c.urlParams_.Encode()
-	req, _ := http.NewRequest("GET", urls, body)
-	req.Header = reqHeaders
-	googleapi.Expand(req.URL, map[string]string{
-		"project": c.project,
-		"zone":    c.zone,
-	})
-	return gensupport.SendRequest(c.ctx_, c.s.client, req)
-}
-
-// Do executes the "compute.hostTypes.list" call.
-// Exactly one of *HostTypeList or error will be non-nil. Any non-2xx
-// status code is an error. Response headers are in either
-// *HostTypeList.ServerResponse.Header or (if a response was returned at
-// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
-// to check whether the returned error was because
-// http.StatusNotModified was returned.
-func (c *HostTypesListCall) Do(opts ...googleapi.CallOption) (*HostTypeList, error) {
-	gensupport.SetOptions(c.urlParams_, opts...)
-	res, err := c.doRequest("json")
-	if res != nil && res.StatusCode == http.StatusNotModified {
-		if res.Body != nil {
-			res.Body.Close()
-		}
-		return nil, &googleapi.Error{
-			Code:   res.StatusCode,
-			Header: res.Header,
-		}
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer googleapi.CloseBody(res)
-	if err := googleapi.CheckResponse(res); err != nil {
-		return nil, err
-	}
-	ret := &HostTypeList{
-		ServerResponse: googleapi.ServerResponse{
-			Header:         res.Header,
-			HTTPStatusCode: res.StatusCode,
-		},
-	}
-	target := &ret
-	if err := gensupport.DecodeResponse(target, res); err != nil {
-		return nil, err
-	}
-	return ret, nil
-	// {
-	//   "description": "Retrieves a list of host types available to the specified project.",
-	//   "httpMethod": "GET",
-	//   "id": "compute.hostTypes.list",
-	//   "parameterOrder": [
-	//     "project",
-	//     "zone"
-	//   ],
-	//   "parameters": {
-	//     "filter": {
-	//       "description": "A filter expression that filters resources listed in the response. The expression must specify the field name, a comparison operator, and the value that you want to use for filtering. The value must be a string, a number, or a boolean. The comparison operator must be either =, !=, \u003e, or \u003c.\n\nFor example, if you are filtering Compute Engine instances, you can exclude instances named example-instance by specifying name != example-instance.\n\nYou can also filter nested fields. For example, you could specify scheduling.automaticRestart = false to include instances only if they are not scheduled for automatic restarts. You can use filtering on nested fields to filter based on resource labels.\n\nTo filter on multiple expressions, provide each separate expression within parentheses. For example, (scheduling.automaticRestart = true) (cpuPlatform = \"Intel Skylake\"). By default, each expression is an AND expression. However, you can include AND and OR expressions explicitly. For example, (cpuPlatform = \"Intel Skylake\") OR (cpuPlatform = \"Intel Broadwell\") AND (scheduling.automaticRestart = true).",
-	//       "location": "query",
-	//       "type": "string"
-	//     },
-	//     "maxResults": {
-	//       "default": "500",
-	//       "description": "The maximum number of results per page that should be returned. If the number of available results is larger than maxResults, Compute Engine returns a nextPageToken that can be used to get the next page of results in subsequent list requests. Acceptable values are 0 to 500, inclusive. (Default: 500)",
-	//       "format": "uint32",
-	//       "location": "query",
-	//       "minimum": "0",
-	//       "type": "integer"
-	//     },
-	//     "orderBy": {
-	//       "description": "Sorts list results by a certain order. By default, results are returned in alphanumerical order based on the resource name.\n\nYou can also sort results in descending order based on the creation timestamp using orderBy=\"creationTimestamp desc\". This sorts results based on the creationTimestamp field in reverse chronological order (newest result first). Use this to sort resources like operations so that the newest operation is returned first.\n\nCurrently, only sorting by name or creationTimestamp desc is supported.",
-	//       "location": "query",
-	//       "type": "string"
-	//     },
-	//     "pageToken": {
-	//       "description": "Specifies a page token to use. Set pageToken to the nextPageToken returned by a previous list request to get the next page of results.",
-	//       "location": "query",
-	//       "type": "string"
-	//     },
-	//     "project": {
-	//       "description": "Project ID for this request.",
-	//       "location": "path",
-	//       "pattern": "(?:(?:[-a-z0-9]{1,63}\\.)*(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?):)?(?:[0-9]{1,19}|(?:[a-z0-9](?:[-a-z0-9]{0,61}[a-z0-9])?))",
-	//       "required": true,
-	//       "type": "string"
-	//     },
-	//     "zone": {
-	//       "description": "The name of the zone for this request.",
-	//       "location": "path",
-	//       "pattern": "[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?",
-	//       "required": true,
-	//       "type": "string"
-	//     }
-	//   },
-	//   "path": "{project}/zones/{zone}/hostTypes",
-	//   "response": {
-	//     "$ref": "HostTypeList"
-	//   },
-	//   "scopes": [
-	//     "https://www.googleapis.com/auth/cloud-platform",
-	//     "https://www.googleapis.com/auth/compute",
-	//     "https://www.googleapis.com/auth/compute.readonly"
-	//   ]
-	// }
-
-}
-
-// Pages invokes f for each page of results.
-// A non-nil error returned from f will halt the iteration.
-// The provided context supersedes any context provided to the Context method.
-func (c *HostTypesListCall) Pages(ctx context.Context, f func(*HostTypeList) error) error {
-	c.ctx_ = ctx
-	defer c.PageToken(c.urlParams_.Get("pageToken")) // reset paging to original point
-	for {
-		x, err := c.Do()
-		if err != nil {
-			return err
-		}
-		if err := f(x); err != nil {
-			return err
-		}
-		if x.NextPageToken == "" {
-			return nil
-		}
-		c.PageToken(x.NextPageToken)
-	}
-}
-
 // method id "compute.httpHealthChecks.delete":
 
 type HttpHealthChecksDeleteCall struct {
@@ -70296,7 +69613,8 @@ type InstancesAggregatedListCall struct {
 	header_      http.Header
 }
 
-// AggregatedList: Retrieves aggregated list of instances.
+// AggregatedList: Retrieves aggregated list of all of the instances in
+// your project across all regions and zones.
 // For details, see https://cloud.google.com/compute/docs/reference/latest/instances/aggregatedList
 func (r *InstancesService) AggregatedList(project string) *InstancesAggregatedListCall {
 	c := &InstancesAggregatedListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
@@ -70461,7 +69779,7 @@ func (c *InstancesAggregatedListCall) Do(opts ...googleapi.CallOption) (*Instanc
 	}
 	return ret, nil
 	// {
-	//   "description": "Retrieves aggregated list of instances.",
+	//   "description": "Retrieves aggregated list of all of the instances in your project across all regions and zones.",
 	//   "httpMethod": "GET",
 	//   "id": "compute.instances.aggregatedList",
 	//   "parameterOrder": [
@@ -71787,8 +71105,8 @@ type InstancesGetSerialPortOutputCall struct {
 	header_      http.Header
 }
 
-// GetSerialPortOutput: Returns the specified instance's serial port
-// output.
+// GetSerialPortOutput: Returns the last 1 MB of serial port output from
+// the specified instance.
 // For details, see https://cloud.google.com/compute/docs/reference/latest/instances/getSerialPortOutput
 func (r *InstancesService) GetSerialPortOutput(project string, zone string, instance string) *InstancesGetSerialPortOutputCall {
 	c := &InstancesGetSerialPortOutputCall{s: r.s, urlParams_: make(gensupport.URLParams)}
@@ -71912,7 +71230,7 @@ func (c *InstancesGetSerialPortOutputCall) Do(opts ...googleapi.CallOption) (*Se
 	}
 	return ret, nil
 	// {
-	//   "description": "Returns the specified instance's serial port output.",
+	//   "description": "Returns the last 1 MB of serial port output from the specified instance.",
 	//   "httpMethod": "GET",
 	//   "id": "compute.instances.getSerialPortOutput",
 	//   "parameterOrder": [
@@ -82836,6 +82154,1192 @@ func (c *LicensesTestIamPermissionsCall) Do(opts ...googleapi.CallOption) (*Test
 	//     }
 	//   },
 	//   "path": "{project}/global/licenses/{resource}/testIamPermissions",
+	//   "request": {
+	//     "$ref": "TestPermissionsRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "TestPermissionsResponse"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/compute",
+	//     "https://www.googleapis.com/auth/compute.readonly"
+	//   ]
+	// }
+
+}
+
+// method id "compute.machineImages.delete":
+
+type MachineImagesDeleteCall struct {
+	s            *Service
+	project      string
+	machineImage string
+	urlParams_   gensupport.URLParams
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// Delete: Deletes the specified machine image. If you delete an
+// instance template that is being referenced from another instance
+// group, the instance group will not be able to create or recreate
+// virtual machine instances. Deleting an machine image is permanent and
+// cannot be undone.
+func (r *MachineImagesService) Delete(project string, machineImage string) *MachineImagesDeleteCall {
+	c := &MachineImagesDeleteCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.project = project
+	c.machineImage = machineImage
+	return c
+}
+
+// RequestId sets the optional parameter "requestId": An optional
+// request ID to identify requests. Specify a unique request ID so that
+// if you must retry your request, the server will know to ignore the
+// request if it has already been completed.
+//
+// For example, consider a situation where you make an initial request
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
+// request. This prevents clients from accidentally creating duplicate
+// commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
+func (c *MachineImagesDeleteCall) RequestId(requestId string) *MachineImagesDeleteCall {
+	c.urlParams_.Set("requestId", requestId)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *MachineImagesDeleteCall) Fields(s ...googleapi.Field) *MachineImagesDeleteCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *MachineImagesDeleteCall) Context(ctx context.Context) *MachineImagesDeleteCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *MachineImagesDeleteCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *MachineImagesDeleteCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	urls := googleapi.ResolveRelative(c.s.BasePath, "{project}/global/machineImages/{machineImage}")
+	urls += "?" + c.urlParams_.Encode()
+	req, _ := http.NewRequest("DELETE", urls, body)
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"project":      c.project,
+		"machineImage": c.machineImage,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "compute.machineImages.delete" call.
+// Exactly one of *Operation or error will be non-nil. Any non-2xx
+// status code is an error. Response headers are in either
+// *Operation.ServerResponse.Header or (if a response was returned at
+// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
+// to check whether the returned error was because
+// http.StatusNotModified was returned.
+func (c *MachineImagesDeleteCall) Do(opts ...googleapi.CallOption) (*Operation, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, &googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, err
+	}
+	ret := &Operation{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Deletes the specified machine image. If you delete an instance template that is being referenced from another instance group, the instance group will not be able to create or recreate virtual machine instances. Deleting an machine image is permanent and cannot be undone.",
+	//   "httpMethod": "DELETE",
+	//   "id": "compute.machineImages.delete",
+	//   "parameterOrder": [
+	//     "project",
+	//     "machineImage"
+	//   ],
+	//   "parameters": {
+	//     "machineImage": {
+	//       "description": "The name of the machine image to delete.",
+	//       "location": "path",
+	//       "pattern": "[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "project": {
+	//       "description": "Project ID for this request.",
+	//       "location": "path",
+	//       "pattern": "(?:(?:[-a-z0-9]{1,63}\\.)*(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?):)?(?:[0-9]{1,19}|(?:[a-z0-9](?:[-a-z0-9]{0,61}[a-z0-9])?))",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "requestId": {
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
+	//       "location": "query",
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "{project}/global/machineImages/{machineImage}",
+	//   "response": {
+	//     "$ref": "Operation"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/compute"
+	//   ]
+	// }
+
+}
+
+// method id "compute.machineImages.get":
+
+type MachineImagesGetCall struct {
+	s            *Service
+	project      string
+	machineImage string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// Get: Returns the specified machine image. Gets a list of available
+// machine images by making a list() request.
+func (r *MachineImagesService) Get(project string, machineImage string) *MachineImagesGetCall {
+	c := &MachineImagesGetCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.project = project
+	c.machineImage = machineImage
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *MachineImagesGetCall) Fields(s ...googleapi.Field) *MachineImagesGetCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *MachineImagesGetCall) IfNoneMatch(entityTag string) *MachineImagesGetCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *MachineImagesGetCall) Context(ctx context.Context) *MachineImagesGetCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *MachineImagesGetCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *MachineImagesGetCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	urls := googleapi.ResolveRelative(c.s.BasePath, "{project}/global/machineImages/{machineImage}")
+	urls += "?" + c.urlParams_.Encode()
+	req, _ := http.NewRequest("GET", urls, body)
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"project":      c.project,
+		"machineImage": c.machineImage,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "compute.machineImages.get" call.
+// Exactly one of *MachineImage or error will be non-nil. Any non-2xx
+// status code is an error. Response headers are in either
+// *MachineImage.ServerResponse.Header or (if a response was returned at
+// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
+// to check whether the returned error was because
+// http.StatusNotModified was returned.
+func (c *MachineImagesGetCall) Do(opts ...googleapi.CallOption) (*MachineImage, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, &googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, err
+	}
+	ret := &MachineImage{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Returns the specified machine image. Gets a list of available machine images by making a list() request.",
+	//   "httpMethod": "GET",
+	//   "id": "compute.machineImages.get",
+	//   "parameterOrder": [
+	//     "project",
+	//     "machineImage"
+	//   ],
+	//   "parameters": {
+	//     "machineImage": {
+	//       "description": "The name of the machine image.",
+	//       "location": "path",
+	//       "pattern": "[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "project": {
+	//       "description": "Project ID for this request.",
+	//       "location": "path",
+	//       "pattern": "(?:(?:[-a-z0-9]{1,63}\\.)*(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?):)?(?:[0-9]{1,19}|(?:[a-z0-9](?:[-a-z0-9]{0,61}[a-z0-9])?))",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "{project}/global/machineImages/{machineImage}",
+	//   "response": {
+	//     "$ref": "MachineImage"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/compute",
+	//     "https://www.googleapis.com/auth/compute.readonly"
+	//   ]
+	// }
+
+}
+
+// method id "compute.machineImages.getIamPolicy":
+
+type MachineImagesGetIamPolicyCall struct {
+	s            *Service
+	project      string
+	resource     string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// GetIamPolicy: Gets the access control policy for a resource. May be
+// empty if no such policy or resource exists.
+func (r *MachineImagesService) GetIamPolicy(project string, resource string) *MachineImagesGetIamPolicyCall {
+	c := &MachineImagesGetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.project = project
+	c.resource = resource
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *MachineImagesGetIamPolicyCall) Fields(s ...googleapi.Field) *MachineImagesGetIamPolicyCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *MachineImagesGetIamPolicyCall) IfNoneMatch(entityTag string) *MachineImagesGetIamPolicyCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *MachineImagesGetIamPolicyCall) Context(ctx context.Context) *MachineImagesGetIamPolicyCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *MachineImagesGetIamPolicyCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *MachineImagesGetIamPolicyCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	urls := googleapi.ResolveRelative(c.s.BasePath, "{project}/global/machineImages/{resource}/getIamPolicy")
+	urls += "?" + c.urlParams_.Encode()
+	req, _ := http.NewRequest("GET", urls, body)
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"project":  c.project,
+		"resource": c.resource,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "compute.machineImages.getIamPolicy" call.
+// Exactly one of *Policy or error will be non-nil. Any non-2xx status
+// code is an error. Response headers are in either
+// *Policy.ServerResponse.Header or (if a response was returned at all)
+// in error.(*googleapi.Error).Header. Use googleapi.IsNotModified to
+// check whether the returned error was because http.StatusNotModified
+// was returned.
+func (c *MachineImagesGetIamPolicyCall) Do(opts ...googleapi.CallOption) (*Policy, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, &googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, err
+	}
+	ret := &Policy{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Gets the access control policy for a resource. May be empty if no such policy or resource exists.",
+	//   "httpMethod": "GET",
+	//   "id": "compute.machineImages.getIamPolicy",
+	//   "parameterOrder": [
+	//     "project",
+	//     "resource"
+	//   ],
+	//   "parameters": {
+	//     "project": {
+	//       "description": "Project ID for this request.",
+	//       "location": "path",
+	//       "pattern": "(?:(?:[-a-z0-9]{1,63}\\.)*(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?):)?(?:[0-9]{1,19}|(?:[a-z0-9](?:[-a-z0-9]{0,61}[a-z0-9])?))",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "resource": {
+	//       "description": "Name of the resource for this request.",
+	//       "location": "path",
+	//       "pattern": "[a-z0-9](?:[-a-z0-9_]{0,61}[a-z0-9])?",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "{project}/global/machineImages/{resource}/getIamPolicy",
+	//   "response": {
+	//     "$ref": "Policy"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/compute",
+	//     "https://www.googleapis.com/auth/compute.readonly"
+	//   ]
+	// }
+
+}
+
+// method id "compute.machineImages.insert":
+
+type MachineImagesInsertCall struct {
+	s            *Service
+	project      string
+	machineimage *MachineImage
+	urlParams_   gensupport.URLParams
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// Insert: Creates an machine image in the specified project using the
+// data that is included in the request. If you are creating a new
+// template to update an existing instance group, your new machine image
+// must use the same network or, if applicable, the same subnetwork as
+// the original template.
+func (r *MachineImagesService) Insert(project string, machineimage *MachineImage) *MachineImagesInsertCall {
+	c := &MachineImagesInsertCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.project = project
+	c.machineimage = machineimage
+	return c
+}
+
+// RequestId sets the optional parameter "requestId": An optional
+// request ID to identify requests. Specify a unique request ID so that
+// if you must retry your request, the server will know to ignore the
+// request if it has already been completed.
+//
+// For example, consider a situation where you make an initial request
+// and the request times out. If you make the request again with the
+// same request ID, the server can check if original operation with the
+// same request ID was received, and if so, will ignore the second
+// request. This prevents clients from accidentally creating duplicate
+// commitments.
+//
+// The request ID must be a valid UUID with the exception that zero UUID
+// is not supported (00000000-0000-0000-0000-000000000000).
+func (c *MachineImagesInsertCall) RequestId(requestId string) *MachineImagesInsertCall {
+	c.urlParams_.Set("requestId", requestId)
+	return c
+}
+
+// SourceInstance sets the optional parameter "sourceInstance": Source
+// image to restore onto a disk.
+func (c *MachineImagesInsertCall) SourceInstance(sourceInstance string) *MachineImagesInsertCall {
+	c.urlParams_.Set("sourceInstance", sourceInstance)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *MachineImagesInsertCall) Fields(s ...googleapi.Field) *MachineImagesInsertCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *MachineImagesInsertCall) Context(ctx context.Context) *MachineImagesInsertCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *MachineImagesInsertCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *MachineImagesInsertCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.machineimage)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	urls := googleapi.ResolveRelative(c.s.BasePath, "{project}/global/machineImages")
+	urls += "?" + c.urlParams_.Encode()
+	req, _ := http.NewRequest("POST", urls, body)
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"project": c.project,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "compute.machineImages.insert" call.
+// Exactly one of *Operation or error will be non-nil. Any non-2xx
+// status code is an error. Response headers are in either
+// *Operation.ServerResponse.Header or (if a response was returned at
+// all) in error.(*googleapi.Error).Header. Use googleapi.IsNotModified
+// to check whether the returned error was because
+// http.StatusNotModified was returned.
+func (c *MachineImagesInsertCall) Do(opts ...googleapi.CallOption) (*Operation, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, &googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, err
+	}
+	ret := &Operation{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Creates an machine image in the specified project using the data that is included in the request. If you are creating a new template to update an existing instance group, your new machine image must use the same network or, if applicable, the same subnetwork as the original template.",
+	//   "httpMethod": "POST",
+	//   "id": "compute.machineImages.insert",
+	//   "parameterOrder": [
+	//     "project"
+	//   ],
+	//   "parameters": {
+	//     "project": {
+	//       "description": "Project ID for this request.",
+	//       "location": "path",
+	//       "pattern": "(?:(?:[-a-z0-9]{1,63}\\.)*(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?):)?(?:[0-9]{1,19}|(?:[a-z0-9](?:[-a-z0-9]{0,61}[a-z0-9])?))",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "requestId": {
+	//       "description": "An optional request ID to identify requests. Specify a unique request ID so that if you must retry your request, the server will know to ignore the request if it has already been completed.\n\nFor example, consider a situation where you make an initial request and the request times out. If you make the request again with the same request ID, the server can check if original operation with the same request ID was received, and if so, will ignore the second request. This prevents clients from accidentally creating duplicate commitments.\n\nThe request ID must be a valid UUID with the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "sourceInstance": {
+	//       "description": "Optional. Source image to restore onto a disk.",
+	//       "location": "query",
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "{project}/global/machineImages",
+	//   "request": {
+	//     "$ref": "MachineImage"
+	//   },
+	//   "response": {
+	//     "$ref": "Operation"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/compute"
+	//   ]
+	// }
+
+}
+
+// method id "compute.machineImages.list":
+
+type MachineImagesListCall struct {
+	s            *Service
+	project      string
+	urlParams_   gensupport.URLParams
+	ifNoneMatch_ string
+	ctx_         context.Context
+	header_      http.Header
+}
+
+// List: Retrieves a list of machine images that are contained within
+// the specified project.
+func (r *MachineImagesService) List(project string) *MachineImagesListCall {
+	c := &MachineImagesListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.project = project
+	return c
+}
+
+// Filter sets the optional parameter "filter": A filter expression that
+// filters resources listed in the response. The expression must specify
+// the field name, a comparison operator, and the value that you want to
+// use for filtering. The value must be a string, a number, or a
+// boolean. The comparison operator must be either =, !=, >, or <.
+//
+// For example, if you are filtering Compute Engine instances, you can
+// exclude instances named example-instance by specifying name !=
+// example-instance.
+//
+// You can also filter nested fields. For example, you could specify
+// scheduling.automaticRestart = false to include instances only if they
+// are not scheduled for automatic restarts. You can use filtering on
+// nested fields to filter based on resource labels.
+//
+// To filter on multiple expressions, provide each separate expression
+// within parentheses. For example, (scheduling.automaticRestart = true)
+// (cpuPlatform = "Intel Skylake"). By default, each expression is an
+// AND expression. However, you can include AND and OR expressions
+// explicitly. For example, (cpuPlatform = "Intel Skylake") OR
+// (cpuPlatform = "Intel Broadwell") AND (scheduling.automaticRestart =
+// true).
+func (c *MachineImagesListCall) Filter(filter string) *MachineImagesListCall {
+	c.urlParams_.Set("filter", filter)
+	return c
+}
+
+// MaxResults sets the optional parameter "maxResults": The maximum
+// number of results per page that should be returned. If the number of
+// available results is larger than maxResults, Compute Engine returns a
+// nextPageToken that can be used to get the next page of results in
+// subsequent list requests. Acceptable values are 0 to 500, inclusive.
+// (Default: 500)
+func (c *MachineImagesListCall) MaxResults(maxResults int64) *MachineImagesListCall {
+	c.urlParams_.Set("maxResults", fmt.Sprint(maxResults))
+	return c
+}
+
+// OrderBy sets the optional parameter "orderBy": Sorts list results by
+// a certain order. By default, results are returned in alphanumerical
+// order based on the resource name.
+//
+// You can also sort results in descending order based on the creation
+// timestamp using orderBy="creationTimestamp desc". This sorts results
+// based on the creationTimestamp field in reverse chronological order
+// (newest result first). Use this to sort resources like operations so
+// that the newest operation is returned first.
+//
+// Currently, only sorting by name or creationTimestamp desc is
+// supported.
+func (c *MachineImagesListCall) OrderBy(orderBy string) *MachineImagesListCall {
+	c.urlParams_.Set("orderBy", orderBy)
+	return c
+}
+
+// PageToken sets the optional parameter "pageToken": Specifies a page
+// token to use. Set pageToken to the nextPageToken returned by a
+// previous list request to get the next page of results.
+func (c *MachineImagesListCall) PageToken(pageToken string) *MachineImagesListCall {
+	c.urlParams_.Set("pageToken", pageToken)
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *MachineImagesListCall) Fields(s ...googleapi.Field) *MachineImagesListCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// IfNoneMatch sets the optional parameter which makes the operation
+// fail if the object's ETag matches the given value. This is useful for
+// getting updates only after the object has changed since the last
+// request. Use googleapi.IsNotModified to check whether the response
+// error from Do is the result of In-None-Match.
+func (c *MachineImagesListCall) IfNoneMatch(entityTag string) *MachineImagesListCall {
+	c.ifNoneMatch_ = entityTag
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *MachineImagesListCall) Context(ctx context.Context) *MachineImagesListCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *MachineImagesListCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *MachineImagesListCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	if c.ifNoneMatch_ != "" {
+		reqHeaders.Set("If-None-Match", c.ifNoneMatch_)
+	}
+	var body io.Reader = nil
+	c.urlParams_.Set("alt", alt)
+	urls := googleapi.ResolveRelative(c.s.BasePath, "{project}/global/machineImages")
+	urls += "?" + c.urlParams_.Encode()
+	req, _ := http.NewRequest("GET", urls, body)
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"project": c.project,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "compute.machineImages.list" call.
+// Exactly one of *MachineImageList or error will be non-nil. Any
+// non-2xx status code is an error. Response headers are in either
+// *MachineImageList.ServerResponse.Header or (if a response was
+// returned at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *MachineImagesListCall) Do(opts ...googleapi.CallOption) (*MachineImageList, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, &googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, err
+	}
+	ret := &MachineImageList{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Retrieves a list of machine images that are contained within the specified project.",
+	//   "httpMethod": "GET",
+	//   "id": "compute.machineImages.list",
+	//   "parameterOrder": [
+	//     "project"
+	//   ],
+	//   "parameters": {
+	//     "filter": {
+	//       "description": "A filter expression that filters resources listed in the response. The expression must specify the field name, a comparison operator, and the value that you want to use for filtering. The value must be a string, a number, or a boolean. The comparison operator must be either =, !=, \u003e, or \u003c.\n\nFor example, if you are filtering Compute Engine instances, you can exclude instances named example-instance by specifying name != example-instance.\n\nYou can also filter nested fields. For example, you could specify scheduling.automaticRestart = false to include instances only if they are not scheduled for automatic restarts. You can use filtering on nested fields to filter based on resource labels.\n\nTo filter on multiple expressions, provide each separate expression within parentheses. For example, (scheduling.automaticRestart = true) (cpuPlatform = \"Intel Skylake\"). By default, each expression is an AND expression. However, you can include AND and OR expressions explicitly. For example, (cpuPlatform = \"Intel Skylake\") OR (cpuPlatform = \"Intel Broadwell\") AND (scheduling.automaticRestart = true).",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "maxResults": {
+	//       "default": "500",
+	//       "description": "The maximum number of results per page that should be returned. If the number of available results is larger than maxResults, Compute Engine returns a nextPageToken that can be used to get the next page of results in subsequent list requests. Acceptable values are 0 to 500, inclusive. (Default: 500)",
+	//       "format": "uint32",
+	//       "location": "query",
+	//       "minimum": "0",
+	//       "type": "integer"
+	//     },
+	//     "orderBy": {
+	//       "description": "Sorts list results by a certain order. By default, results are returned in alphanumerical order based on the resource name.\n\nYou can also sort results in descending order based on the creation timestamp using orderBy=\"creationTimestamp desc\". This sorts results based on the creationTimestamp field in reverse chronological order (newest result first). Use this to sort resources like operations so that the newest operation is returned first.\n\nCurrently, only sorting by name or creationTimestamp desc is supported.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "pageToken": {
+	//       "description": "Specifies a page token to use. Set pageToken to the nextPageToken returned by a previous list request to get the next page of results.",
+	//       "location": "query",
+	//       "type": "string"
+	//     },
+	//     "project": {
+	//       "description": "Project ID for this request.",
+	//       "location": "path",
+	//       "pattern": "(?:(?:[-a-z0-9]{1,63}\\.)*(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?):)?(?:[0-9]{1,19}|(?:[a-z0-9](?:[-a-z0-9]{0,61}[a-z0-9])?))",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "{project}/global/machineImages",
+	//   "response": {
+	//     "$ref": "MachineImageList"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/compute",
+	//     "https://www.googleapis.com/auth/compute.readonly"
+	//   ]
+	// }
+
+}
+
+// Pages invokes f for each page of results.
+// A non-nil error returned from f will halt the iteration.
+// The provided context supersedes any context provided to the Context method.
+func (c *MachineImagesListCall) Pages(ctx context.Context, f func(*MachineImageList) error) error {
+	c.ctx_ = ctx
+	defer c.PageToken(c.urlParams_.Get("pageToken")) // reset paging to original point
+	for {
+		x, err := c.Do()
+		if err != nil {
+			return err
+		}
+		if err := f(x); err != nil {
+			return err
+		}
+		if x.NextPageToken == "" {
+			return nil
+		}
+		c.PageToken(x.NextPageToken)
+	}
+}
+
+// method id "compute.machineImages.setIamPolicy":
+
+type MachineImagesSetIamPolicyCall struct {
+	s                      *Service
+	project                string
+	resource               string
+	globalsetpolicyrequest *GlobalSetPolicyRequest
+	urlParams_             gensupport.URLParams
+	ctx_                   context.Context
+	header_                http.Header
+}
+
+// SetIamPolicy: Sets the access control policy on the specified
+// resource. Replaces any existing policy.
+func (r *MachineImagesService) SetIamPolicy(project string, resource string, globalsetpolicyrequest *GlobalSetPolicyRequest) *MachineImagesSetIamPolicyCall {
+	c := &MachineImagesSetIamPolicyCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.project = project
+	c.resource = resource
+	c.globalsetpolicyrequest = globalsetpolicyrequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *MachineImagesSetIamPolicyCall) Fields(s ...googleapi.Field) *MachineImagesSetIamPolicyCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *MachineImagesSetIamPolicyCall) Context(ctx context.Context) *MachineImagesSetIamPolicyCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *MachineImagesSetIamPolicyCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *MachineImagesSetIamPolicyCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.globalsetpolicyrequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	urls := googleapi.ResolveRelative(c.s.BasePath, "{project}/global/machineImages/{resource}/setIamPolicy")
+	urls += "?" + c.urlParams_.Encode()
+	req, _ := http.NewRequest("POST", urls, body)
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"project":  c.project,
+		"resource": c.resource,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "compute.machineImages.setIamPolicy" call.
+// Exactly one of *Policy or error will be non-nil. Any non-2xx status
+// code is an error. Response headers are in either
+// *Policy.ServerResponse.Header or (if a response was returned at all)
+// in error.(*googleapi.Error).Header. Use googleapi.IsNotModified to
+// check whether the returned error was because http.StatusNotModified
+// was returned.
+func (c *MachineImagesSetIamPolicyCall) Do(opts ...googleapi.CallOption) (*Policy, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, &googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, err
+	}
+	ret := &Policy{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Sets the access control policy on the specified resource. Replaces any existing policy.",
+	//   "httpMethod": "POST",
+	//   "id": "compute.machineImages.setIamPolicy",
+	//   "parameterOrder": [
+	//     "project",
+	//     "resource"
+	//   ],
+	//   "parameters": {
+	//     "project": {
+	//       "description": "Project ID for this request.",
+	//       "location": "path",
+	//       "pattern": "(?:(?:[-a-z0-9]{1,63}\\.)*(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?):)?(?:[0-9]{1,19}|(?:[a-z0-9](?:[-a-z0-9]{0,61}[a-z0-9])?))",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "resource": {
+	//       "description": "Name of the resource for this request.",
+	//       "location": "path",
+	//       "pattern": "[a-z0-9](?:[-a-z0-9_]{0,61}[a-z0-9])?",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "{project}/global/machineImages/{resource}/setIamPolicy",
+	//   "request": {
+	//     "$ref": "GlobalSetPolicyRequest"
+	//   },
+	//   "response": {
+	//     "$ref": "Policy"
+	//   },
+	//   "scopes": [
+	//     "https://www.googleapis.com/auth/cloud-platform",
+	//     "https://www.googleapis.com/auth/compute"
+	//   ]
+	// }
+
+}
+
+// method id "compute.machineImages.testIamPermissions":
+
+type MachineImagesTestIamPermissionsCall struct {
+	s                      *Service
+	project                string
+	resource               string
+	testpermissionsrequest *TestPermissionsRequest
+	urlParams_             gensupport.URLParams
+	ctx_                   context.Context
+	header_                http.Header
+}
+
+// TestIamPermissions: Returns permissions that a caller has on the
+// specified resource.
+func (r *MachineImagesService) TestIamPermissions(project string, resource string, testpermissionsrequest *TestPermissionsRequest) *MachineImagesTestIamPermissionsCall {
+	c := &MachineImagesTestIamPermissionsCall{s: r.s, urlParams_: make(gensupport.URLParams)}
+	c.project = project
+	c.resource = resource
+	c.testpermissionsrequest = testpermissionsrequest
+	return c
+}
+
+// Fields allows partial responses to be retrieved. See
+// https://developers.google.com/gdata/docs/2.0/basics#PartialResponse
+// for more information.
+func (c *MachineImagesTestIamPermissionsCall) Fields(s ...googleapi.Field) *MachineImagesTestIamPermissionsCall {
+	c.urlParams_.Set("fields", googleapi.CombineFields(s))
+	return c
+}
+
+// Context sets the context to be used in this call's Do method. Any
+// pending HTTP request will be aborted if the provided context is
+// canceled.
+func (c *MachineImagesTestIamPermissionsCall) Context(ctx context.Context) *MachineImagesTestIamPermissionsCall {
+	c.ctx_ = ctx
+	return c
+}
+
+// Header returns an http.Header that can be modified by the caller to
+// add HTTP headers to the request.
+func (c *MachineImagesTestIamPermissionsCall) Header() http.Header {
+	if c.header_ == nil {
+		c.header_ = make(http.Header)
+	}
+	return c.header_
+}
+
+func (c *MachineImagesTestIamPermissionsCall) doRequest(alt string) (*http.Response, error) {
+	reqHeaders := make(http.Header)
+	for k, v := range c.header_ {
+		reqHeaders[k] = v
+	}
+	reqHeaders.Set("User-Agent", c.s.userAgent())
+	var body io.Reader = nil
+	body, err := googleapi.WithoutDataWrapper.JSONReader(c.testpermissionsrequest)
+	if err != nil {
+		return nil, err
+	}
+	reqHeaders.Set("Content-Type", "application/json")
+	c.urlParams_.Set("alt", alt)
+	urls := googleapi.ResolveRelative(c.s.BasePath, "{project}/global/machineImages/{resource}/testIamPermissions")
+	urls += "?" + c.urlParams_.Encode()
+	req, _ := http.NewRequest("POST", urls, body)
+	req.Header = reqHeaders
+	googleapi.Expand(req.URL, map[string]string{
+		"project":  c.project,
+		"resource": c.resource,
+	})
+	return gensupport.SendRequest(c.ctx_, c.s.client, req)
+}
+
+// Do executes the "compute.machineImages.testIamPermissions" call.
+// Exactly one of *TestPermissionsResponse or error will be non-nil. Any
+// non-2xx status code is an error. Response headers are in either
+// *TestPermissionsResponse.ServerResponse.Header or (if a response was
+// returned at all) in error.(*googleapi.Error).Header. Use
+// googleapi.IsNotModified to check whether the returned error was
+// because http.StatusNotModified was returned.
+func (c *MachineImagesTestIamPermissionsCall) Do(opts ...googleapi.CallOption) (*TestPermissionsResponse, error) {
+	gensupport.SetOptions(c.urlParams_, opts...)
+	res, err := c.doRequest("json")
+	if res != nil && res.StatusCode == http.StatusNotModified {
+		if res.Body != nil {
+			res.Body.Close()
+		}
+		return nil, &googleapi.Error{
+			Code:   res.StatusCode,
+			Header: res.Header,
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer googleapi.CloseBody(res)
+	if err := googleapi.CheckResponse(res); err != nil {
+		return nil, err
+	}
+	ret := &TestPermissionsResponse{
+		ServerResponse: googleapi.ServerResponse{
+			Header:         res.Header,
+			HTTPStatusCode: res.StatusCode,
+		},
+	}
+	target := &ret
+	if err := gensupport.DecodeResponse(target, res); err != nil {
+		return nil, err
+	}
+	return ret, nil
+	// {
+	//   "description": "Returns permissions that a caller has on the specified resource.",
+	//   "httpMethod": "POST",
+	//   "id": "compute.machineImages.testIamPermissions",
+	//   "parameterOrder": [
+	//     "project",
+	//     "resource"
+	//   ],
+	//   "parameters": {
+	//     "project": {
+	//       "description": "Project ID for this request.",
+	//       "location": "path",
+	//       "pattern": "(?:(?:[-a-z0-9]{1,63}\\.)*(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?):)?(?:[0-9]{1,19}|(?:[a-z0-9](?:[-a-z0-9]{0,61}[a-z0-9])?))",
+	//       "required": true,
+	//       "type": "string"
+	//     },
+	//     "resource": {
+	//       "description": "Name of the resource for this request.",
+	//       "location": "path",
+	//       "pattern": "(?:[-a-z0-9_]{0,62}[a-z0-9])?",
+	//       "required": true,
+	//       "type": "string"
+	//     }
+	//   },
+	//   "path": "{project}/global/machineImages/{resource}/testIamPermissions",
 	//   "request": {
 	//     "$ref": "TestPermissionsRequest"
 	//   },
