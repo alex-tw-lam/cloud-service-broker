@@ -2212,6 +2212,10 @@ func (s *AttachedDisk) MarshalJSON() ([]byte, error) {
 // This property is mutually exclusive with the source property; you can
 // only define one or the other, but not both.
 type AttachedDiskInitializeParams struct {
+	// Description: An optional description. Provide this property when
+	// creating the disk.
+	Description string `json:"description,omitempty"`
+
 	// DiskName: Specifies the disk name. If not specified, the default is
 	// to use the name of the instance. If the disk with the instance name
 	// exists already in the given zone/region, a new name will be
@@ -2220,13 +2224,6 @@ type AttachedDiskInitializeParams struct {
 
 	// DiskSizeGb: Specifies the size of the disk in base-2 GB.
 	DiskSizeGb int64 `json:"diskSizeGb,omitempty,string"`
-
-	// DiskStorageType: [Deprecated] Storage type of the disk.
-	//
-	// Possible values:
-	//   "HDD"
-	//   "SSD"
-	DiskStorageType string `json:"diskStorageType,omitempty"`
 
 	// DiskType: Specifies the disk type to use to create the instance. If
 	// not specified, the default is pd-standard, specified using the full
@@ -2294,7 +2291,7 @@ type AttachedDiskInitializeParams struct {
 	// the source images are encrypted with your own keys.
 	SourceImageEncryptionKey *CustomerEncryptionKey `json:"sourceImageEncryptionKey,omitempty"`
 
-	// ForceSendFields is a list of field names (e.g. "DiskName") to
+	// ForceSendFields is a list of field names (e.g. "Description") to
 	// unconditionally include in API requests. By default, fields with
 	// empty values are omitted from API requests. However, any non-pointer,
 	// non-interface field appearing in ForceSendFields will be sent to the
@@ -2302,10 +2299,10 @@ type AttachedDiskInitializeParams struct {
 	// used to include empty fields in Patch requests.
 	ForceSendFields []string `json:"-"`
 
-	// NullFields is a list of field names (e.g. "DiskName") to include in
-	// API requests with the JSON null value. By default, fields with empty
-	// values are omitted from API requests. However, any field with an
-	// empty value appearing in NullFields will be sent to the server as
+	// NullFields is a list of field names (e.g. "Description") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
 	// null. It is an error if a field in this list has a non-empty value.
 	// This may be used to include null fields in Patch requests.
 	NullFields []string `json:"-"`
@@ -14291,10 +14288,10 @@ type InterconnectLocation struct {
 	// each line in the address is separated by a newline character.
 	Address string `json:"address,omitempty"`
 
-	// AvailabilityZone: [Output Only] Availability zone for this location.
-	// Within a metropolitan area (metro), maintenance will not be
-	// simultaneously scheduled in more than one availability zone. Example:
-	// "zone1" or "zone2".
+	// AvailabilityZone: [Output Only] Availability zone for this
+	// InterconnectLocation. Within a metropolitan area (metro), maintenance
+	// will not be simultaneously scheduled in more than one availability
+	// zone. Example: "zone1" or "zone2".
 	AvailabilityZone string `json:"availabilityZone,omitempty"`
 
 	// City: [Output Only] Metropolitan area designator that indicates which
@@ -24566,7 +24563,8 @@ func (s *SecurityPoliciesWafConfig) MarshalJSON() ([]byte, error) {
 
 // SecurityPolicy: A security policy is comprised of one or more rules.
 // It can also be associated with one or more 'targets'. (==
-// resource_for beta.securityPolicies ==)
+// resource_for v1.securityPolicies ==) (== resource_for
+// beta.securityPolicies ==)
 type SecurityPolicy struct {
 	// CreationTimestamp: [Output Only] Creation timestamp in RFC3339 text
 	// format.
@@ -24915,7 +24913,6 @@ type SecurityPolicyRuleMatcher struct {
 	//
 	// Possible values:
 	//   "SRC_IPS_V1"
-	//   "VERSIONED_EXPR_UNSPECIFIED"
 	VersionedExpr string `json:"versionedExpr,omitempty"`
 
 	// ForceSendFields is a list of field names (e.g. "Config") to
@@ -25515,6 +25512,9 @@ type SslCertificate struct {
 	// property when you create the resource.
 	Description string `json:"description,omitempty"`
 
+	// ExpireTime: [Output Only] Expire time of the certificate. RFC3339
+	ExpireTime string `json:"expireTime,omitempty"`
+
 	// Id: [Output Only] The unique identifier for the resource. This
 	// identifier is defined by the server.
 	Id uint64 `json:"id,omitempty,string"`
@@ -25522,6 +25522,9 @@ type SslCertificate struct {
 	// Kind: [Output Only] Type of the resource. Always
 	// compute#sslCertificate for SSL certificates.
 	Kind string `json:"kind,omitempty"`
+
+	// Managed: Configuration and status of a managed SSL certificate.
+	Managed *SslCertificateManagedSslCertificate `json:"managed,omitempty"`
 
 	// Name: Name of the resource. Provided by the client when the resource
 	// is created. The name must be 1-63 characters long, and comply with
@@ -25538,6 +25541,24 @@ type SslCertificate struct {
 
 	// SelfLink: [Output only] Server-defined URL for the resource.
 	SelfLink string `json:"selfLink,omitempty"`
+
+	// SelfManaged: Configuration and status of a self-managed SSL
+	// certificate.
+	SelfManaged *SslCertificateSelfManagedSslCertificate `json:"selfManaged,omitempty"`
+
+	// SubjectAlternativeNames: [Output Only] Domains associated with the
+	// certificate via Subject Alternative Name.
+	SubjectAlternativeNames []string `json:"subjectAlternativeNames,omitempty"`
+
+	// Type: (Optional) Specifies the type of SSL certificate, either
+	// "SELF_MANAGED" or "MANAGED". If not specified, the certificate is
+	// self-managed and the fields certificate and private_key are used.
+	//
+	// Possible values:
+	//   "MANAGED"
+	//   "SELF_MANAGED"
+	//   "TYPE_UNSPECIFIED"
+	Type string `json:"type,omitempty"`
 
 	// ServerResponse contains the HTTP response code and headers from the
 	// server.
@@ -25717,6 +25738,86 @@ type SslCertificateListWarningData struct {
 
 func (s *SslCertificateListWarningData) MarshalJSON() ([]byte, error) {
 	type NoMethod SslCertificateListWarningData
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// SslCertificateManagedSslCertificate: Configuration and status of a
+// managed SSL certificate.
+type SslCertificateManagedSslCertificate struct {
+	// DomainStatus: [Output only] Detailed statuses of the domains
+	// specified for managed certificate resource.
+	DomainStatus map[string]string `json:"domainStatus,omitempty"`
+
+	// Domains: The domains for which a managed SSL certificate will be
+	// generated. Currently only single-domain certs are supported.
+	Domains []string `json:"domains,omitempty"`
+
+	// Status: [Output only] Status of the managed certificate resource.
+	//
+	// Possible values:
+	//   "ACTIVE"
+	//   "MANAGED_CERTIFICATE_STATUS_UNSPECIFIED"
+	//   "PROVISIONING"
+	//   "PROVISIONING_FAILED"
+	//   "PROVISIONING_FAILED_PERMANENTLY"
+	//   "RENEWAL_FAILED"
+	Status string `json:"status,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "DomainStatus") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "DomainStatus") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *SslCertificateManagedSslCertificate) MarshalJSON() ([]byte, error) {
+	type NoMethod SslCertificateManagedSslCertificate
+	raw := NoMethod(*s)
+	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
+}
+
+// SslCertificateSelfManagedSslCertificate: Configuration and status of
+// a self-managed SSL certificate.
+type SslCertificateSelfManagedSslCertificate struct {
+	// Certificate: A local certificate file. The certificate must be in PEM
+	// format. The certificate chain must be no greater than 5 certs long.
+	// The chain must include at least one intermediate cert.
+	Certificate string `json:"certificate,omitempty"`
+
+	// PrivateKey: A write-only private key in PEM format. Only insert
+	// requests will include this field.
+	PrivateKey string `json:"privateKey,omitempty"`
+
+	// ForceSendFields is a list of field names (e.g. "Certificate") to
+	// unconditionally include in API requests. By default, fields with
+	// empty values are omitted from API requests. However, any non-pointer,
+	// non-interface field appearing in ForceSendFields will be sent to the
+	// server regardless of whether the field is empty or not. This may be
+	// used to include empty fields in Patch requests.
+	ForceSendFields []string `json:"-"`
+
+	// NullFields is a list of field names (e.g. "Certificate") to include
+	// in API requests with the JSON null value. By default, fields with
+	// empty values are omitted from API requests. However, any field with
+	// an empty value appearing in NullFields will be sent to the server as
+	// null. It is an error if a field in this list has a non-empty value.
+	// This may be used to include null fields in Patch requests.
+	NullFields []string `json:"-"`
+}
+
+func (s *SslCertificateSelfManagedSslCertificate) MarshalJSON() ([]byte, error) {
+	type NoMethod SslCertificateSelfManagedSslCertificate
 	raw := NoMethod(*s)
 	return gensupport.MarshalJSON(raw, s.ForceSendFields, s.NullFields)
 }
@@ -59753,7 +59854,8 @@ type InstancesAggregatedListCall struct {
 	header_      http.Header
 }
 
-// AggregatedList: Retrieves aggregated list of instances.
+// AggregatedList: Retrieves aggregated list of all of the instances in
+// your project across all regions and zones.
 // For details, see https://cloud.google.com/compute/docs/reference/latest/instances/aggregatedList
 func (r *InstancesService) AggregatedList(project string) *InstancesAggregatedListCall {
 	c := &InstancesAggregatedListCall{s: r.s, urlParams_: make(gensupport.URLParams)}
@@ -59918,7 +60020,7 @@ func (c *InstancesAggregatedListCall) Do(opts ...googleapi.CallOption) (*Instanc
 	}
 	return ret, nil
 	// {
-	//   "description": "Retrieves aggregated list of instances.",
+	//   "description": "Retrieves aggregated list of all of the instances in your project across all regions and zones.",
 	//   "httpMethod": "GET",
 	//   "id": "compute.instances.aggregatedList",
 	//   "parameterOrder": [
@@ -61070,8 +61172,8 @@ type InstancesGetSerialPortOutputCall struct {
 	header_      http.Header
 }
 
-// GetSerialPortOutput: Returns the specified instance's serial port
-// output.
+// GetSerialPortOutput: Returns the last 1 MB of serial port output from
+// the specified instance.
 // For details, see https://cloud.google.com/compute/docs/reference/latest/instances/getSerialPortOutput
 func (r *InstancesService) GetSerialPortOutput(project string, zone string, instance string) *InstancesGetSerialPortOutputCall {
 	c := &InstancesGetSerialPortOutputCall{s: r.s, urlParams_: make(gensupport.URLParams)}
@@ -61195,7 +61297,7 @@ func (c *InstancesGetSerialPortOutputCall) Do(opts ...googleapi.CallOption) (*Se
 	}
 	return ret, nil
 	// {
-	//   "description": "Returns the specified instance's serial port output.",
+	//   "description": "Returns the last 1 MB of serial port output from the specified instance.",
 	//   "httpMethod": "GET",
 	//   "id": "compute.instances.getSerialPortOutput",
 	//   "parameterOrder": [
