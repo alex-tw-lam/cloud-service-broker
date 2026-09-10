@@ -185,7 +185,7 @@ var _ = Describe("BindRequestDetails", func() {
 		It("deletes physically from the database", func() {
 			exists := func() bool {
 				var count int64
-				Expect(db.Model(&models.BindRequestDetails{}).Where(`service_binding_id="fake-binding-id"`).Unscoped().Count(&count).Error).NotTo(HaveOccurred())
+				Expect(db.Model(&models.BindRequestDetails{}).Where("service_binding_id = ?", "fake-binding-id").Unscoped().Count(&count).Error).NotTo(HaveOccurred())
 				return count != 0
 			}
 			Expect(exists()).To(BeTrue())

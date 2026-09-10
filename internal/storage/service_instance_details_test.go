@@ -61,7 +61,7 @@ var _ = Describe("ServiceInstanceDetails", func() {
 				Expect(err).NotTo(HaveOccurred())
 
 				var receiver models.ServiceInstanceDetails
-				Expect(db.Where(`id = "fake-id-1"`).Find(&receiver).Error).NotTo(HaveOccurred())
+				Expect(db.Where("id = ?", "fake-id-1").Find(&receiver).Error).NotTo(HaveOccurred())
 				Expect(receiver.ID).To(Equal("fake-id-1"))
 				Expect(receiver.Name).To(Equal("fake-name"))
 				Expect(receiver.OtherDetails).To(Equal([]byte(`{"encrypted":{"foo":"bar"}}`)))

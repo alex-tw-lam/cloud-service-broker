@@ -51,7 +51,7 @@ func (ServiceBindingCredentialsV1) TableName() string {
 type ServiceBindingCredentialsV2 struct {
 	gorm.Model
 
-	OtherDetails []byte `gorm:"type:blob"`
+	OtherDetails []byte
 
 	ServiceID         string
 	ServiceInstanceID string
@@ -136,7 +136,7 @@ type ServiceInstanceDetailsV3 struct {
 	Name         string
 	Location     string
 	URL          string
-	OtherDetails []byte `gorm:"type:blob"`
+	OtherDetails []byte
 
 	ServiceID        string
 	PlanID           string
@@ -170,7 +170,7 @@ type ServiceInstanceDetailsV4 struct {
 	DeletedAt *time.Time
 
 	Name         string
-	OtherDetails []byte `gorm:"type:blob"`
+	OtherDetails []byte
 
 	ServiceID        string
 	PlanID           string
@@ -228,7 +228,7 @@ type ProvisionRequestDetailsV3 struct {
 	ServiceInstanceID string
 
 	// is a json.Marshal of models.ProvisionDetails
-	RequestDetails []byte `gorm:"type:blob"`
+	RequestDetails []byte
 }
 
 // TableName returns a consistent table name for
@@ -247,7 +247,7 @@ type BindRequestDetailsV1 struct {
 	ServiceInstanceID string
 
 	// is a json.Marshal of models.BindDetails
-	RequestDetails []byte `gorm:"type:blob"`
+	RequestDetails []byte
 }
 
 // TableName returns a consistent table name for
@@ -266,9 +266,9 @@ type BindRequestDetailsV2 struct {
 	ServiceInstanceID string
 
 	// is a json.Marshal of models.BindRessource
-	BindResource []byte `gorm:"type:blob"`
+	BindResource []byte
 	// is a json.Marshal of models.Parameters
-	Parameters []byte `gorm:"type:blob"`
+	Parameters []byte
 }
 
 // TableName returns a consistent table name for
@@ -283,7 +283,7 @@ func (BindRequestDetailsV2) TableName() string {
 type MigrationV1 struct {
 	gorm.Model
 
-	MigrationID int `gorm:"type:int(10)"`
+	MigrationID int
 }
 
 // TableName returns a consistent table name for gorm so
@@ -348,7 +348,7 @@ type TerraformDeploymentV1 struct {
 	DeletedAt *time.Time
 
 	// Workspace contains a JSON serialized version of the Terraform workspace.
-	Workspace string `gorm:"type:mediumtext"`
+	Workspace string `gorm:"type:text"`
 
 	// LastOperationType describes the last operation being performed on the resource.
 	LastOperationType string
@@ -361,9 +361,9 @@ type TerraformDeploymentV1 struct {
 	LastOperationMessage string `gorm:"type:text"`
 }
 
-// TableName returns a consistent table name for gorm so
-// multiple structs from different versions of the database all operate on the
-// same table.
+// TableName returns a consistent table name for
+// gorm so multiple structs from different versions of the database all operate
+// on the same table.
 func (TerraformDeploymentV1) TableName() string {
 	return "terraform_deployments"
 }
@@ -378,7 +378,7 @@ type TerraformDeploymentV2 struct {
 	DeletedAt *time.Time
 
 	// Workspace contains a JSON serialized version of the Terraform workspace.
-	Workspace string `gorm:"type:mediumtext"`
+	Workspace string `gorm:"type:text"`
 
 	// LastOperationType describes the last operation being performed on the resource.
 	LastOperationType string
@@ -406,7 +406,7 @@ type TerraformDeploymentV3 struct {
 	DeletedAt *time.Time
 
 	// Workspace contains a JSON serialized version of the Terraform workspace.
-	Workspace []byte `gorm:"type:mediumblob"`
+	Workspace []byte
 
 	// LastOperationType describes the last operation being performed on the resource.
 	LastOperationType string
@@ -434,8 +434,8 @@ type PasswordMetadataV1 struct {
 	UpdatedAt time.Time
 
 	Label   string `gorm:"index;unique;not null"`
-	Salt    []byte `gorm:"type:blob;not null"`
-	Canary  []byte `gorm:"type:blob;not null"`
+	Salt    []byte `gorm:"not null"`
+	Canary  []byte `gorm:"not null"`
 	Primary bool
 }
 

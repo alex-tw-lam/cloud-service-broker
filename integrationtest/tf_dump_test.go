@@ -24,6 +24,6 @@ var _ = Describe("TF Dump", func() {
 		session, err := Start(cmd, GinkgoWriter, GinkgoWriter)
 		Expect(err).NotTo(HaveOccurred())
 		Eventually(session).WithTimeout(time.Minute).Should(Exit(2))
-		Expect(session.Err).To(Say("panic: no such table: password_metadata"))
+		Expect(session.Err).To(Say("panic: .*no such table: password_metadata"))
 	})
 })
