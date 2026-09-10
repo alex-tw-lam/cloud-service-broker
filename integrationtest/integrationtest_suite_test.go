@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/glebarez/sqlite"
+	"gorm.io/driver/sqlite"
 
 	"gorm.io/gorm"
 

@@ -10,7 +10,7 @@ import (
 	"github.com/cloudfoundry/cloud-service-broker/v2/internal/encryption/noopencryptor"
 	"github.com/cloudfoundry/cloud-service-broker/v2/internal/storage"
 	"github.com/cloudfoundry/cloud-service-broker/v2/internal/testdrive"
-	"github.com/glebarez/sqlite"
+	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 

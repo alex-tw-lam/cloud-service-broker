@@ -23,7 +23,7 @@ import (
 	"net/url"
 	"os"
 
-	"github.com/glebarez/sqlite"
+	"gorm.io/driver/sqlite"
 
 	"code.cloudfoundry.org/lager/v3"
 	"github.com/go-sql-driver/mysql"
@@ -111,8 +111,11 @@ func setupSqlite3Db(logger lager.Logger) (*gorm.DB, error) {
 		return nil, fmt.Errorf("you must set a database path when using SQLite3 databases")
 	}
 
+	// full mutex mode to stop "database is locked" errors caused by concurrent use of same db connection
+	dsn := fmt.Sprintf("%s?%s", dbPath, url.QueryEscape("_mutex=full"))
+
 	logger.Info("WARNING: DO NOT USE SQLITE3 IN PRODUCTION!")
-	return gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
+	return gorm.Open(sqlite.Open(dsn), &gorm.Config{})
 }
 
 func setupPostgresDB(logger lager.Logger) (*gorm.DB, error) {
