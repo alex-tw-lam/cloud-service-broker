@@ -53,19 +53,6 @@ test-integration: .pak-cache ## run integration tests
 .pak-cache:
 	mkdir -p $(PAK_CACHE)
 
-.PHONY: test-pg
-test-pg: ## run database tests against a throwaway PostgreSQL instance (requires Docker)
-	-docker rm -f csb-test-pg
-	docker run -d --name csb-test-pg -e POSTGRES_PASSWORD=password -p 127.0.0.1:54329:5432 postgres:17-alpine
-	until docker exec csb-test-pg pg_isready -U postgres >/dev/null 2>&1; do sleep 1; done
-	docker exec csb-test-pg createdb -U postgres servicebroker_migrations
-	docker exec csb-test-pg createdb -U postgres servicebroker_storage
-	TEST_DB_DSN="host=127.0.0.1 port=54329 user=postgres password=password dbname=servicebroker_migrations sslmode=disable" \
-		go test $(PKG)/dbservice/... -tags=service_broker
-	TEST_DB_DSN="host=127.0.0.1 port=54329 user=postgres password=password dbname=servicebroker_storage sslmode=disable" \
-		go test $(PKG)/internal/storage/... -tags=service_broker
-	docker rm -f csb-test-pg
-
 .PHONY: test-units-coverage
 test-units-coverage: ## test-units coverage score
 	go list ./... | grep -v fake > /tmp/csb-non-fake.txt

@@ -2,14 +2,12 @@ package storage_test
 
 import (
 	"errors"
-	"os"
 	"strings"
 	"testing"
 
 	"code.cloudfoundry.org/lager/v3/lagertest"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 
@@ -32,22 +30,8 @@ func TestStorage(t *testing.T) {
 
 var _ = BeforeEach(func() {
 	var err error
-	if dsn := os.Getenv("TEST_DB_DSN"); dsn != "" {
-		// when testing against a persistent database (see `make test-pg`), drop
-		// and recreate the tables so each spec starts clean
-		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
-		Expect(err).NotTo(HaveOccurred())
-		Expect(db.Migrator().DropTable(
-			&models.ServiceBindingCredentials{},
-			&models.ProvisionRequestDetails{},
-			&models.BindRequestDetails{},
-			&models.ServiceInstanceDetails{},
-			&models.TerraformDeployment{},
-		)).NotTo(HaveOccurred())
-	} else {
-		db, err = gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
-		Expect(err).NotTo(HaveOccurred())
-	}
+	db, err = gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	Expect(err).NotTo(HaveOccurred())
 	Expect(db.Migrator().CreateTable(&models.ServiceBindingCredentials{})).NotTo(HaveOccurred())
 	Expect(db.Migrator().CreateTable(&models.ProvisionRequestDetails{})).NotTo(HaveOccurred())
 	Expect(db.Migrator().CreateTable(&models.BindRequestDetails{})).NotTo(HaveOccurred())

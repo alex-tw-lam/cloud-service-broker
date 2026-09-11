@@ -24,14 +24,12 @@ You can configure the following values:
 
 | Environment Variable | Config File Value | Type    | Description                                                                                                                                   |
 |----------------------|------|---------|-----------------------------------------------------------------------------------------------------------------------------------------------|
-| <tt>DB_TYPE</tt> <b>*</b> | db.type | string  | <p>Database type. Allowed values:<code>mysql</code>,<code>postgres</code>,<code>sqlite3</code> Default: <code>mysql</code></p>                  |
 | <tt>DB_HOST</tt> <b>*</b> | db.host | string  | <p>Database host </p>                                                                                                                         |
 | <tt>DB_USERNAME</tt> | db.user | string  | <p>Database username </p>                                                                                                                     |
 | <tt>DB_PASSWORD</tt> | db.password | secret  | <p>Database password </p>                                                                                                                     |
-| <tt>DB_PORT</tt> <b>*</b> | db.port | string  | <p>Database port (defaults to 3306 for MySQL, 5432 for PostgreSQL)  Default: <code>3306</code></p>                                            |
+| <tt>DB_PORT</tt> <b>*</b> | db.port | string  | <p>Database port (defaults to 3306)  Default: <code>3306</code></p>                                                                           |
 | <tt>DB_NAME</tt> <b>*</b> | db.name | string  | <p>Database name  Default: <code>servicebroker</code></p>                                                                                     |
-| <tt>DB_TLS</tt> <b>*</b>      | db.tls   | string  | <p>Enforce TLS on connection to Database. For MySQL, allowed values:<code>true</code>,<code>false</code>,<code>skip-verify</code>,<code>custom</code>. For PostgreSQL, <code>true</code> maps to <code>sslmode=require</code> and <code>false</code> to <code>sslmode=disable</code></p> |
-| <tt>DB_PATH</tt> <b>*</b> | db.path | string | <p>Path to SQLite database file, only used when <code>DB_TYPE=sqlite3</code> (not for production use)</p>                                       |
+| <tt>DB_TLS</tt> <b>*</b>      | db.tls   | string  | <p>Enforce TLS on connection to Database. Allowed values:<code>true</code>,<code>false</code>,<code>skip-verify</code>,<code>custom</code></p> |
 | <tt>CUSTOM_CERT_TLS_SKIP_VERIFY</tt> <b>*</b>      | db.custom_certs.tls_skip_verify   | bool    | <p>Skip TLS verification when using custom certificates. Default: <code>true</code></p> |
 | <tt>CA_CERT</tt> | db.ca.cert | text    | <p>Server CA cert </p>                                                                                                                        |
 | <tt>CLIENT_CERT</tt> | db.client.cert | text    | <p>Client cert </p>                                                                                                                           |

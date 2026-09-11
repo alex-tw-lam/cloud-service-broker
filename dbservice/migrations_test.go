@@ -7,7 +7,6 @@ import (
 	"github.com/cloudfoundry/cloud-service-broker/v2/dbservice/models"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -54,13 +53,8 @@ var _ = Describe("Migrations", func() {
 
 		BeforeEach(func() {
 			var err error
-			if dsn := os.Getenv("TEST_DB_DSN"); dsn != "" {
-				// expects a fresh PostgreSQL database (see `make test-pg`)
-				db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
-			} else {
-				// The tests don't pass when using an ":memory:" database as opposed to a real file. Presumably a GORM feature.
-				db, err = gorm.Open(sqlite.Open("test.sqlite3"), &gorm.Config{})
-			}
+			// The tests don't pass when using an ":memory:" database as opposed to a real file. Presumably a GORM feature.
+			db, err = gorm.Open(sqlite.Open("test.sqlite3"), &gorm.Config{})
 			Expect(err).NotTo(HaveOccurred())
 
 			DeferCleanup(func() {
