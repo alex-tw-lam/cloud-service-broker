@@ -19,6 +19,7 @@ import (
 	"crypto/x509"
 	"errors"
 	"fmt"
+	"net"
 	"net/url"
 	"os"
 
@@ -28,6 +29,7 @@ import (
 	"github.com/go-sql-driver/mysql"
 	"github.com/spf13/viper"
 	gormmysql "gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
@@ -45,8 +47,9 @@ const (
 	dbTypeProp          = "db.type"
 	dbPathProp          = "db.path"
 
-	DBTypeMySQL   = "mysql"
-	DBTypeSQLite3 = "sqlite3"
+	DBTypeMySQL    = "mysql"
+	DBTypePostgres = "postgres"
+	DBTypeSQLite3  = "sqlite3"
 )
 
 func init() {
@@ -84,10 +87,12 @@ func SetupDB(logger lager.Logger) *gorm.DB {
 	}
 	switch dbType {
 	default:
-		logger.Error("Database Setup", fmt.Errorf("invalid database type %q, valid types are: sqlite3 and mysql", dbType))
+		logger.Error("Database Setup", fmt.Errorf("invalid database type %q, valid types are: mysql, postgres, and sqlite3", dbType))
 		os.Exit(1)
 	case DBTypeMySQL:
 		db, err = setupMySQLDB(logger)
+	case DBTypePostgres:
+		db, err = setupPostgresDB(logger)
 	case DBTypeSQLite3:
 		db, err = setupSqlite3Db(logger)
 	}
@@ -111,6 +116,47 @@ func setupSqlite3Db(logger lager.Logger) (*gorm.DB, error) {
 
 	logger.Info("WARNING: DO NOT USE SQLITE3 IN PRODUCTION!")
 	return gorm.Open(sqlite.Open(dsn), &gorm.Config{})
+}
+
+func setupPostgresDB(logger lager.Logger) (*gorm.DB, error) {
+	dbHost := viper.GetString(dbHostProp)
+	dbUsername := viper.GetString(dbUserProp)
+	dbPassword := viper.GetString(dbPassProp)
+
+	if dbPassword == "" || dbHost == "" || dbUsername == "" {
+		return nil, errors.New("DB_HOST, DB_USERNAME and DB_PASSWORD are required environment variables")
+	}
+
+	dbPort := viper.GetString(dbPortProp)
+	if os.Getenv("DB_PORT") == "" {
+		dbPort = "5432" // the viper default of 3306 only applies to MySQL
+	}
+	dbName := viper.GetString(dbNameProp)
+
+	// Postgres TLS is configured through the sslmode DSN parameter; the
+	// MySQL-specific custom certificate environment variables do not apply.
+	sslMode := "require"
+	if !viper.GetBool(dbTLS) {
+		sslMode = "disable"
+	}
+
+	logger.Info("Connecting to PostgreSQL Database", lager.Data{
+		"host":     dbHost,
+		"port":     dbPort,
+		"name":     dbName,
+		"username": dbUsername,
+		"sslmode":  sslMode,
+	})
+
+	dsn := url.URL{
+		Scheme:   "postgresql",
+		User:     url.UserPassword(dbUsername, dbPassword),
+		Host:     net.JoinHostPort(dbHost, dbPort),
+		Path:     "/" + dbName,
+		RawQuery: url.Values{"sslmode": []string{sslMode}}.Encode(),
+	}
+
+	return gorm.Open(postgres.Open(dsn.String()), &gorm.Config{})
 }
 
 func setupMySQLDB(logger lager.Logger) (*gorm.DB, error) {

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	"github.com/cloudfoundry/cloud-service-broker/v2/dbservice/models"
 )
@@ -11,7 +12,7 @@ import (
 func UpdatePasswordMetadata(db *gorm.DB, configuredPrimaryLabel string) error {
 	return db.Transaction(func(tx *gorm.DB) error {
 		var passwordMetadata []models.PasswordMetadata
-		if err := tx.Where("`primary` = true").Find(&passwordMetadata).Error; err != nil {
+		if err := tx.Where(clause.Eq{Column: clause.Column{Name: "primary"}, Value: true}).Find(&passwordMetadata).Error; err != nil {
 			return err
 		}
 
