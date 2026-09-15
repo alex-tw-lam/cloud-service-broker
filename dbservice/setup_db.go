@@ -23,7 +23,7 @@ import (
 	"net/url"
 	"os"
 
-	"gorm.io/driver/sqlite"
+	"github.com/glebarez/sqlite"
 
 	"code.cloudfoundry.org/lager/v3"
 	"github.com/go-sql-driver/mysql"

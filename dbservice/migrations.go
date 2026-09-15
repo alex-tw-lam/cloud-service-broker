@@ -73,7 +73,7 @@ func RunMigrations(db *gorm.DB) error {
 	}
 
 	migrations[6] = func() error { // v4.2.4
-		if db.Config.Dialector.Name() == "sqlite3" {
+		if db.Config.Dialector.Name() == "sqlite" {
 			// sqlite does not support changing column data types
 			return nil
 		} else {
@@ -86,7 +86,7 @@ func RunMigrations(db *gorm.DB) error {
 	}
 
 	migrations[8] = func() error { // v0.2.2
-		if db.Config.Dialector.Name() == "sqlite3" {
+		if db.Config.Dialector.Name() == "sqlite" {
 			// sqlite does not support changing column data types.
 			// Shouldn't matter because sqlite is only for non-prod deployments,
 			// and can be re-provisioned more easily.

@@ -20,7 +20,7 @@ import (
 	"sync"
 
 	"code.cloudfoundry.org/lager/v3"
-	_ "gorm.io/driver/sqlite"
+	_ "github.com/glebarez/sqlite"
 	"gorm.io/gorm"
 )
 
