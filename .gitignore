@@ -19,3 +19,5 @@ acceptance-tests/gcp/storage-spring-test-app/.settings/
 acceptance-tests/gcp/storage-spring-test-app/HELP.md
 acceptance-tests/gcp/storage-spring-test-app/target/
 .pak-cache/
+gcp_logo.png
+brokerpak.zip
